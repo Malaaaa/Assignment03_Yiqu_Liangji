@@ -15,7 +15,27 @@ public class BoardControllerScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // Test, checking the grild number and choose object
+        // if (RayShoot()) {
+        //     Vector3 currentPosition = CalculateTheGrildPosition();
+        //     if (IsValidPosition(currentPosition)) {
+        //         int currentNumber = CalculateTheGrildNumber(currentPosition);
+        //         Debug.Log("Number: " + currentNumber);
+        //         Debug.Log(raycastHit.transform.tag);
+        //     }
+        // }
         
+    }
+
+    public bool RayShoot() {
+
+        Ray rayCheck = Camera.main.ScreenPointToRay(Input.mousePosition);
+        return Physics.Raycast(rayCheck, out raycastHit, 100);
+    }
+
+    public RaycastHit GetRaycastHit() {
+
+        return this.raycastHit;
     }
 
     /*
@@ -24,14 +44,13 @@ public class BoardControllerScript : MonoBehaviour
      */
     public Vector3 CalculateTheGrildPosition() {
 
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition); 
-        if (Physics.Raycast (ray, out raycastHit, 100)) {
-			Vector3 point = raycastHit.point;
+        if (RayShoot()) {
+            Vector3 point = raycastHit.point;
             int i = (int) point.x;
             int j = (int) point.z;
 			// Debug.Log(j + (i - 1) * 8);
             return new Vector3(i, 0, j);
-		}
+        }
         return Vector3.zero;
     }
 

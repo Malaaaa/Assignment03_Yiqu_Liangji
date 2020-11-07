@@ -6,6 +6,8 @@ public class BoardControllerScript : MonoBehaviour
 {
 
     private RaycastHit raycastHit;
+
+    private bool isChoosed;
     // Start is called before the first frame update
     void Start()
     {
@@ -25,10 +27,30 @@ public class BoardControllerScript : MonoBehaviour
         //     }
         // }
 
-        if (RayShoot()) {
-            string currentBlockedTag = raycastHit.transform.tag;
-            // different chess have different rules
-            Rules(currentBlockedTag);
+        // if (RayShoot()) {
+        //     string currentBlockedTag = raycastHit.transform.tag;
+
+        //     /*
+        //      *  Status check. 
+        //      *  When player choose a chess, set isChoosed = true;
+        //      *  When player put a chess, set isChoosed = false;
+        //      *  When player release a chess, set isChoosed = false;
+        //      */ 
+        //     if (Input.GetMouseButtonDown(0)) {
+
+        //     } else if (Input.GetMouseButtonDown(1)) {
+        //         // right click, release the chess to old position
+        //     }
+        //     // different chess have different rules
+        //     Rules(currentBlockedTag);
+            
+        // }
+        if (Input.GetMouseButtonDown(0)) {
+            if (RayShoot()) {
+                string currentTag = raycastHit.transform.tag;
+                
+                
+            }
         }
     }
 
@@ -41,6 +63,11 @@ public class BoardControllerScript : MonoBehaviour
     public RaycastHit GetRaycastHit() {
 
         return this.raycastHit;
+    }
+
+    public bool IsChoosed() {
+
+        return this.isChoosed;
     }
 
     /*
@@ -94,6 +121,17 @@ public class BoardControllerScript : MonoBehaviour
     public bool IsValidNumber(int number) {
         
         return number >= 1 && number <= 64;
+    }
+
+    /*
+     *  Predicte the position that the chess new position
+     *  Use this function, could calculate the new possible positions 
+     *  and show in the game
+     */
+    public List<Vector3> predicteTheFuturePosition() {
+
+
+        return new List<Vector3>();
     }
 
     /*

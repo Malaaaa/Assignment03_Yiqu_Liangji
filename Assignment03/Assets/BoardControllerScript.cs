@@ -24,7 +24,12 @@ public class BoardControllerScript : MonoBehaviour
         //         Debug.Log(raycastHit.transform.tag);
         //     }
         // }
-        
+
+        if (RayShoot()) {
+            string currentBlockedTag = raycastHit.transform.tag;
+            // different chess have different rules
+            Rules(currentBlockedTag);
+        }
     }
 
     public bool RayShoot() {
@@ -48,7 +53,6 @@ public class BoardControllerScript : MonoBehaviour
             Vector3 point = raycastHit.point;
             int i = (int) point.x;
             int j = (int) point.z;
-			// Debug.Log(j + (i - 1) * 8);
             return new Vector3(i, 0, j);
         }
         return Vector3.zero;
@@ -90,6 +94,40 @@ public class BoardControllerScript : MonoBehaviour
     public bool IsValidNumber(int number) {
         
         return number >= 1 && number <= 64;
+    }
+
+    /*
+     *  TO-DO discribe the rules for different chess
+     */
+    public void Rules(string objectTag) {
+
+        switch (objectTag)
+        {
+            case "King" :
+
+            break;
+
+            case "Queen" :
+
+            break;
+
+            case "Knight" :
+
+            break;
+
+            case "Pawn" :
+
+            break;
+
+            case "Bishop" :
+
+            break;
+
+            case "Rook" :
+
+            break;
+        }
+
     }
 
 }

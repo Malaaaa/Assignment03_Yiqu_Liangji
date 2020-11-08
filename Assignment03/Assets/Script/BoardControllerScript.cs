@@ -11,7 +11,6 @@ public class BoardControllerScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
     }
 
     // Update is called once per frame
@@ -43,29 +42,31 @@ public class BoardControllerScript : MonoBehaviour
         //     }
         //     // different chess have different rules
         //     Rules(currentBlockedTag);
-            
+
         // }
-        if (Input.GetMouseButtonDown(0)) {
-            if (RayShoot()) {
+        if (Input.GetMouseButtonDown(0))
+        {
+            if (RayShoot())
+            {
                 string currentTag = raycastHit.transform.tag;
-                
-                
             }
         }
     }
-
-    public bool RayShoot() {
+    public bool RayShoot()
+    {
 
         Ray rayCheck = Camera.main.ScreenPointToRay(Input.mousePosition);
         return Physics.Raycast(rayCheck, out raycastHit, 100);
     }
 
-    public RaycastHit GetRaycastHit() {
+    public RaycastHit GetRaycastHit()
+    {
 
         return this.raycastHit;
     }
 
-    public bool IsChoosed() {
+    public bool IsChoosed()
+    {
 
         return this.isChoosed;
     }
@@ -74,12 +75,14 @@ public class BoardControllerScript : MonoBehaviour
      *  Calculate the current mouse position in grild
      *  Rules function could use this, set it to public
      */
-    public Vector3 CalculateTheGrildPosition() {
+    public Vector3 CalculateTheGrildPosition()
+    {
 
-        if (RayShoot()) {
+        if (RayShoot())
+        {
             Vector3 point = raycastHit.point;
-            int i = (int) point.x;
-            int j = (int) point.z;
+            int i = (int)point.x;
+            int j = (int)point.z;
             return new Vector3(i, 0, j);
         }
         return Vector3.zero;
@@ -88,17 +91,21 @@ public class BoardControllerScript : MonoBehaviour
     /*
      *  To make sure the mouse position in the board
      */
-    public bool IsValidPosition(Vector3 currentPosition) {
+    public bool IsValidPosition(Vector3 currentPosition)
+    {
 
-        if (currentPosition == Vector3.zero) {
+        if (currentPosition == Vector3.zero)
+        {
             return false;
         }
         float x = currentPosition.x;
         float z = currentPosition.z;
-        if (x > 8 || x < 0) {
+        if (x > 8 || x < 0)
+        {
             return false;
         }
-        if (z > 8 || z < 0) {
+        if (z > 8 || z < 0)
+        {
             return false;
         }
         return true;
@@ -108,18 +115,20 @@ public class BoardControllerScript : MonoBehaviour
      *  Calculate the position in which gril number
      *  Rules function could use this, set it to public
      */
-    public int CalculateTheGrildNumber(Vector3 currentPosition) {
+    public int CalculateTheGrildNumber(Vector3 currentPosition)
+    {
 
         float x = currentPosition.x;
         float z = currentPosition.z;
-        return (int) (z + (x - 1) * 8);
+        return (int)(z + (x - 1) * 8);
     }
 
     /*
      *  Check the number whether in the board.
      */
-    public bool IsValidNumber(int number) {
-        
+    public bool IsValidNumber(int number)
+    {
+
         return number >= 1 && number <= 64;
     }
 
@@ -128,7 +137,8 @@ public class BoardControllerScript : MonoBehaviour
      *  Use this function, could calculate the new possible positions 
      *  and show in the game
      */
-    public List<Vector3> predicteTheFuturePosition() {
+    public List<Vector3> predicteTheFuturePosition()
+    {
 
 
         return new List<Vector3>();
@@ -137,33 +147,34 @@ public class BoardControllerScript : MonoBehaviour
     /*
      *  TO-DO discribe the rules for different chess
      */
-    public void Rules(string objectTag) {
+    public void Rules(string objectTag)
+    {
 
         switch (objectTag)
         {
-            case "King" :
+            case "King":
 
-            break;
+                break;
 
-            case "Queen" :
+            case "Queen":
 
-            break;
+                break;
 
-            case "Knight" :
+            case "Knight":
 
-            break;
+                break;
 
-            case "Pawn" :
+            case "Pawn":
 
-            break;
+                break;
 
-            case "Bishop" :
+            case "Bishop":
 
-            break;
+                break;
 
-            case "Rook" :
+            case "Rook":
 
-            break;
+                break;
         }
 
     }

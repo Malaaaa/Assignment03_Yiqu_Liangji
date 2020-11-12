@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
-// 棋盘对象
-public class Board
+public class Board : MonoBehaviour
 {
-    private int stepCount = 0;                                      // 总步数
-    private int stepSize = 0;                                       // 单步长
-    private List<string> stepList = new List<string>();             // 落子记录
+    private int stepCount = 0;                                   
+    private int stepSize = 0;                              
+    private List<string> stepList = new List<string>();            
 
     private readonly string[] pieceStrArr = { "White Center King", "White Center Queen", "White Left Bishop", "White Right Bishop", "White Left Knight", "White Right Knight", "White Left Rook", "White Right Rook", "White Pawn A", "White Pawn B", "White Pawn C", "White Pawn D", "White Pawn E", "White Pawn F", "White Pawn G", "White Pawn H", "Black Center King", "Black Center Queen", "Black Left Bishop", "Black Right Bishop", "Black Left Knight", "Black Right Knight", "Black Left Rook", "Black Right Rook", "Black Pawn A", "Black Pawn B", "Black Pawn C", "Black Pawn D", "Black Pawn E", "Black Pawn F", "Black Pawn G", "Black Pawn H" };
 
@@ -17,6 +17,7 @@ public class Board
     public Coordinate pickCoord = null;                             // 当前举棋棋盘坐标
     private List<Coordinate> passCoords = new List<Coordinate>();   // 可行列表
     private List<Coordinate> killCoords = new List<Coordinate>();   // 可杀列表
+  
 
     public Board()
     {
@@ -25,6 +26,7 @@ public class Board
     }
 
     // 初始化方格列表，将Unity对象转换为抽象对象
+
     public void InitSquares()
     {
         for (int i = 0; i < 8; i++)
@@ -42,6 +44,11 @@ public class Board
         foreach (string pieceStr in pieceStrArr)
         {
             pieces.Add(new Piece(GameObject.Find(pieceStr)));
+        }
+        foreach(Piece piece in pieces)
+        {
+            NavMeshAgent nev =piece.go.AddComponent<NavMeshAgent>();
+            nev.baseOffset= 0;
         }
     }
 
@@ -67,7 +74,8 @@ public class Board
     {
         if (pickPiece != null)
         {
-            pickPiece.go.transform.localPosition = coord.vec;
+            NavMeshAgent agent = pickPiece.go.GetComponent<NavMeshAgent>();
+            agent.SetDestination(coord.vec);
             pickPiece.coord = coord;
             pickPiece.step++;
             stepList.Add(++stepCount + "--" + pickPiece.go.name + "--" + pickPiece.coord.ToString());

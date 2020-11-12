@@ -38,7 +38,7 @@ public class GameController : MonoBehaviour
         }
         if (gameStatus == GameStatus.Switch)
         {
-            SwitchCamera();
+            SwitchGamer();
         }
     }
 
@@ -98,12 +98,10 @@ public class GameController : MonoBehaviour
         }
     }
 
-    // 180°旋转棋盘
-    private void SwitchCamera()
+    private void SwitchGamer()
     {
         if (frame < 45)
         {
-            RotateObjectToAngle(chessBoard, 4);
             frame++;
         }
         else

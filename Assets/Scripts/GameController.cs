@@ -28,8 +28,8 @@ public class GameController : MonoBehaviour
     void Update()
     {
         //RotateObjectToAngle(chessBoard, 0.25f);
-        SingleFingerRotate(chessBoard);
-        if ((selectedObject = SingleFingerClick()) != null)
+        SingleRotate(chessBoard);
+        if ((selectedObject = SingleClick()) != null)
         {
             if (gameStatus == GameStatus.Pick || gameStatus == GameStatus.Move)
             {
@@ -144,19 +144,16 @@ public class GameController : MonoBehaviour
     }
 
     // 左键/单指点击物体，返回物体名
-    private GameObject SingleFingerClick()
+    private GameObject SingleClick()
     {
-#if UNITY_EDITOR || UNITY_STANDALONE || UNITY_WEBGL
         if (Input.GetMouseButtonDown(0))
-#elif UNITY_IPHONE || UNITY_ANDROID
-        if (Input.touchCount == 1 && Input.GetTouch(0).phase == TouchPhase.Ended)
-#endif
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hitInfo = new RaycastHit();
             if (Physics.Raycast(ray, out hitInfo, Mathf.Infinity))
             {
                 Debug.DrawLine(ray.origin, hitInfo.point);
+                Debug.Log(hitInfo.transform.gameObject);
                 return hitInfo.transform.gameObject;
             }
         }
@@ -164,21 +161,12 @@ public class GameController : MonoBehaviour
     }
 
     // 右键/单指拖拽旋转物体，每帧调用
-    private void SingleFingerRotate(GameObject gameObject)
+    private void SingleRotate(GameObject gameObject)
     {
-#if UNITY_IOS || UNITY_IPHONE || UNITY_ANDROID
-        // 单指拖拽旋转物体
-        if (Input.touchCount == 1 && Input.touches[0].phase == TouchPhase.Moved && gameObject.transform != null)
-        {
-            RotateObjectToAngle(gameObject, -Input.GetAxis("Mouse X") * Time.deltaTime * rotateFactory);
-        }
-#elif UNITY_EDITOR || UNITY_STANDALONE || UNITY_WEBGL
-        // 右键拖拽旋转物体
         if (Input.GetMouseButton(1) && gameObject.transform != null)
         {
             RotateObjectToAngle(gameObject, -Input.GetAxis("Mouse X") * Time.deltaTime * rotateFactory);
         }
-#endif  
     }
 
     // 顺时针旋转指定物体到指定角度

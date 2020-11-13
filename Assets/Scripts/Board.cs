@@ -5,10 +5,19 @@ using UnityEngine.AI;
 public class Board : MonoBehaviour
 {
     private int stepCount = 0;                                   
-    private int stepSize = 0;                              
+    private int stepSize = 0;                        
+
+    private Animator animator = null;      
     private List<string> stepList = new List<string>();            
 
-    private readonly string[] pieceStrArr = { "White Center King", "White Center Queen", "White Left Bishop", "White Right Bishop", "White Left Knight", "White Right Knight", "White Left Rook", "White Right Rook", "White Pawn A", "White Pawn B", "White Pawn C", "White Pawn D", "White Pawn E", "White Pawn F", "White Pawn G", "White Pawn H", "Black Center King", "Black Center Queen", "Black Left Bishop", "Black Right Bishop", "Black Left Knight", "Black Right Knight", "Black Left Rook", "Black Right Rook", "Black Pawn A", "Black Pawn B", "Black Pawn C", "Black Pawn D", "Black Pawn E", "Black Pawn F", "Black Pawn G", "Black Pawn H" };
+    private readonly string[] pieceStrArr = { "White Center King", "White Center Queen", "White Left Bishop", "White Right Bishop", 
+                                              "White Left Knight", "White Right Knight", "White Left Rook", "White Right Rook", 
+                                              "White Pawn A", "White Pawn B", "White Pawn C", "White Pawn D", 
+                                              "White Pawn E", "White Pawn F", "White Pawn G", "White Pawn H", 
+                                              "Black Center King", "Black Center Queen", "Black Left Bishop", "Black Right Bishop", 
+                                              "Black Left Knight", "Black Right Knight", "Black Left Rook", "Black Right Rook", 
+                                              "Black Pawn A", "Black Pawn B", "Black Pawn C", "Black Pawn D", 
+                                              "Black Pawn E", "Black Pawn F", "Black Pawn G", "Black Pawn H" };
 
     private List<Square> squares = new List<Square>();              // 方格列表
     private List<Piece> pieces = new List<Piece>();                 // 棋子列表
@@ -49,15 +58,16 @@ public class Board : MonoBehaviour
         {
             NavMeshAgent nev =piece.go.AddComponent<NavMeshAgent>();
             nev.baseOffset= 0;
+            nev.speed = 1f;
         }
     }
 
     // 举棋
-    public void PickPiece(Coordinate coord)
+    public GameObject PickPiece(Coordinate coord)
     {
         if (coord == null)
         {
-            return;
+            return null;
         }
 
         ClearSquares(); // 清除方格染色
@@ -67,20 +77,29 @@ public class Board : MonoBehaviour
         CheckNextSteps(pickPiece);
 
         TintSquares(); // 方格染色
+        return pickPiece.go;
     }
 
     // 落子
-    public void MovePiece(Coordinate coord)
+    public GameObject MovePiece(Coordinate coord)
     {
         if (pickPiece != null)
         {
             NavMeshAgent agent = pickPiece.go.GetComponent<NavMeshAgent>();
             agent.SetDestination(coord.vec);
+            animator = pickPiece.go.GetComponent<Animator>();
+            animator.SetBool("Walking", true);
             pickPiece.coord = coord;
             pickPiece.step++;
             stepList.Add(++stepCount + "--" + pickPiece.go.name + "--" + pickPiece.coord.ToString());
         }
         ClearSquares();
+        return pickPiece.go;
+    }
+
+    private void SetBoolAnimator(string paramName, bool isActive) {
+
+        animator.SetBool(paramName, isActive);
     }
 
     // 杀子

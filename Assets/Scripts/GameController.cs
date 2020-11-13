@@ -13,6 +13,10 @@ public class GameController : MonoBehaviour
     private GameObject selectedObject;
     private GameObject chessBoard;
 
+    private GameObject latestSelectedChess;
+
+    private GameObject lastSelectSquare;
+
     void Start()
     {
         chessBoard = GameObject.FindGameObjectWithTag("Chess Game");
@@ -40,6 +44,7 @@ public class GameController : MonoBehaviour
         {
             SwitchGamer();
         }
+        CleanChessStatus();
     }
 
     void OnGUI()
@@ -62,6 +67,27 @@ public class GameController : MonoBehaviour
         }
     }
 
+    /*
+     *  When Chess finished moving, should clean the animation status.
+     *  Change it to "Idle"
+     */
+    private void CleanChessStatus() {
+
+        if (latestSelectedChess != null && lastSelectSquare != null) {
+            
+            if (CheckSamePosition(latestSelectedChess.transform.position, lastSelectSquare.transform.position)) {
+                Animator chessAnimator = latestSelectedChess.GetComponent<Animator>();
+                chessAnimator.SetBool("Walking", false);
+                chessAnimator.Play("Idle");
+            }
+        }
+    }
+
+    private bool CheckSamePosition(Vector3 position1, Vector3 position2) {
+        
+        return position1.x == position2.x && position1.z == position2.z;
+    }
+
     private void SelectPiece(GameObject selectedObject)
     {
         Piece selectedPiece = board.FindPiece(new Coordinate(selectedObject.transform.localPosition));
@@ -69,7 +95,7 @@ public class GameController : MonoBehaviour
         {
             if ((((int)selectedPiece.type < 6) && gameSwitch == GameSwitch.White) || (((int)selectedPiece.type > 6) && gameSwitch == GameSwitch.Black))
             {
-                board.PickPiece(selectedPiece.coord);
+                latestSelectedChess = board.PickPiece(selectedPiece.coord);
                 gameStatus = GameStatus.Move;
             }
             else if (gameStatus == GameStatus.Move && ((((int)selectedPiece.type > 6) && gameSwitch == GameSwitch.White) || (((int)selectedPiece.type < 6) && gameSwitch == GameSwitch.Black)))
@@ -84,15 +110,21 @@ public class GameController : MonoBehaviour
         Square selectedSquare = board.FindSquare(new Coordinate(selectedObject.transform.localPosition));
         if (selectedSquare != null && (selectedSquare.tint == SquareTint.Pass || selectedSquare.tint == SquareTint.Kill))
         {
+            lastSelectSquare = selectedSquare.go;
             if (selectedSquare.tint == SquareTint.Kill)
             {
                 if (board.FindPiece(selectedSquare.coord).type == PieceType.BlackKing || board.FindPiece(selectedSquare.coord).type == PieceType.WhiteKing)
                 {
                     gameStatus = GameStatus.End;
                 }
+                GameObject killedChess = board.FindPiece(selectedSquare.coord).go;
+                // TODO
+                Debug.Log(lastSelectSquare);
+                Debug.Log(latestSelectedChess);
+                Debug.Log(killedChess);
                 board.KillPiece(selectedSquare.coord);
             }
-            board.MovePiece(selectedSquare.coord);
+            latestSelectedChess = board.MovePiece(selectedSquare.coord);
             gameStatus = GameStatus.Switch;
             gameSwitch = (gameSwitch == GameSwitch.White) ? GameSwitch.Black : GameSwitch.White;
         }

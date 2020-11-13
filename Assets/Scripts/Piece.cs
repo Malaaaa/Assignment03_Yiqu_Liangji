@@ -15,6 +15,11 @@ public class Piece
         coord = new Coordinate(go.transform.localPosition);
     }
 
+    public GameObject GetGameObject() {
+
+        return this.go;
+    }
+
     // 棋子名字转类型
     public PieceType NameToType(string name)
     {

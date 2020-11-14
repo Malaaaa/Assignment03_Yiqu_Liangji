@@ -53,7 +53,7 @@ public class GameController : MonoBehaviour
     {
         if (_kingDead)
         {
-            Debug.Log("WINNER!");
+            // Debug.Log("WINNER!");
             //UnityEditor.EditorApplication.isPlaying = false;
             Application.Quit();
         }
@@ -64,7 +64,7 @@ public class GameController : MonoBehaviour
         else if (gameSwitch == GameSwitch.Black && timer >= 3)
         {
             MoveData move = AI.GetMove();
-            Debug.Log("KAishi " + move.firstPosition);
+            // Debug.Log("KAishi " + move.firstPosition);
             _DoAIMove(move);
             timer = 0;
         }
@@ -74,37 +74,35 @@ public class GameController : MonoBehaviour
             Coordinate secondPosition = move.secondPosition;
             Piece firstPiece = board.FindPiece(firstPosition);
             Square Target = board.FindSquare(secondPosition);
-            Debug.Log(firstPosition);
+            // Debug.Log(firstPosition);
             SelectPiece(firstPiece.go);
             SelectSquare(Target.go);
         }
-        if ((selectedObject = SingleClick()) != null)
+        
+        if (!IsUIActive())
+        {
+            if ((selectedObject = SingleClick()) != null)
             {
-                if (!IsUIActive())
+                if (gameStatus == GameStatus.Pick || gameStatus == GameStatus.Move)
                 {
-                    if ((selectedObject = SingleClick()) != null)
-                    {
-                        if (gameStatus == GameStatus.Pick || gameStatus == GameStatus.Move)
-                        {
-                            SelectPiece(selectedObject);
-                        }
-                        if (gameStatus == GameStatus.Move)
-                        {
-                            SelectSquare(selectedObject);
-                        }
-                    }
-                    if (gameStatus == GameStatus.Switch)
-                    {
-                        SwitchGamer();
-                    }
-                    CheckAnimationStatus();
+                    SelectPiece(selectedObject);
                 }
-                if (gameStatus == GameStatus.Switch)
+                if (gameStatus == GameStatus.Move)
                 {
-                    SwitchGamer();
+                    SelectSquare(selectedObject);
                 }
-                CheckAnimationStatus();
             }
+            if (gameStatus == GameStatus.Switch)
+            {
+                SwitchGamer();
+            }
+            CheckAnimationStatus();
+        }
+        // if (gameStatus == GameStatus.Switch)
+        // {
+        //     SwitchGamer();
+        // }
+        // CheckAnimationStatus();
     }
     void OnGUI()
     {
@@ -138,7 +136,9 @@ public class GameController : MonoBehaviour
 
             if (CheckSamePosition(latestSelectedChess.transform.position, lastSelectSquare.transform.position))
             {
+                Debug.Log("Stop");
                 Animator chessAnimator = latestSelectedChess.GetComponent<Animator>();
+                chessAnimator.SetBool("Attacking", false);
                 chessAnimator.SetBool("Walking", false);
                 chessAnimator.Play("Idle");
             }
@@ -151,17 +151,19 @@ public class GameController : MonoBehaviour
             Animator killedChessAnimator = lastKilledChess.GetComponent<Animator>();
             if (distance <= 1.5f && distance > 0.5f)
             {
+                Debug.Log("Attack");
                 moveChessAnimator.SetBool("Attacking", true);
                 killedChessAnimator.SetBool("Hurting", true);
-                PlayAudioSource("Hurt", lastKilledChess.transform.position);
             }
             else if (distance <= 0.5f && distance > 0.3f)
             {
+                Debug.Log("Die");
                 killedChessAnimator.SetBool("Die", true);
                 PlayAudioSource("Die", lastKilledChess.transform.position);
             }
             else if (distance <= 0.3f)
             {
+                Debug.Log("Stop");
                 // moveChessAnimator.Play("Idle",0, 0);
                 moveChessAnimator.SetBool("Attacking", false);
                 moveChessAnimator.SetBool("Walking", false);
@@ -183,7 +185,6 @@ public class GameController : MonoBehaviour
 
     private bool CheckSamePosition(Vector3 position1, Vector3 position2)
     {
-
         return position1.x == position2.x && position1.z == position2.z;
     }
 
@@ -217,13 +218,9 @@ public class GameController : MonoBehaviour
                     gameStatus = GameStatus.End;
                 }
                 GameObject killedChess = board.FindPiece(selectedSquare.coord).go;
-                // TODO
-                Debug.Log(lastSelectSquare);
-                Debug.Log(latestSelectedChess);
-                Debug.Log(killedChess);
-                board.KillPiece(selectedSquare.coord);
                 lastKilledChess = board.FindPiece(selectedSquare.coord).go;
                 PlayAudioSource("Attack", latestSelectedChess.transform.position);
+                PlayAudioSource("Hurt", lastKilledChess.transform.position);
                 // board.KillPiece(selectedSquare.coord);
             }
             latestSelectedChess = board.MovePiece(selectedSquare.coord);
@@ -250,14 +247,14 @@ public class GameController : MonoBehaviour
     private GameObject SingleClick()
     {
         if (Input.GetMouseButtonDown(0))
-        {
+        {  
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hitInfo = new RaycastHit();
             if (Physics.Raycast(ray, out hitInfo, Mathf.Infinity))
             {
-                Debug.Log(hitInfo.transform.name);
-                Debug.DrawLine(ray.origin, hitInfo.point);
-                Debug.Log(hitInfo.transform.gameObject);
+                // Debug.Log(hitInfo.transform.name);
+                // Debug.DrawLine(ray.origin, hitInfo.point);
+                // Debug.Log(hitInfo.transform.gameObject);
                 return hitInfo.transform.gameObject;
             }
         }
@@ -307,7 +304,11 @@ public class GameController : MonoBehaviour
      * Play audio by type
      */
     private void PlayAudioSource(string audioType, Vector3 playPoint)
-    {
+
+        // if (IsAudioPlay())
+        // {
+        //     audioSource.Stop();
+        // }
 
         switch (audioType)
         {

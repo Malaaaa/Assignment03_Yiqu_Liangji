@@ -5993,7 +5993,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &948921285
 RectTransform:
   m_ObjectHideFlags: 0
@@ -9951,6 +9951,7 @@ MonoBehaviour:
   attack: {fileID: 8300000, guid: 153e13709459e574aa8763e525510c61, type: 3}
   die: {fileID: 8300000, guid: d1a1b5697c47e1e45a3b93ec8047e01b, type: 3}
   hurt: {fileID: 8300000, guid: 81f1a91af0194854faa381a304b8df30, type: 3}
+  gameSwitch: 0
 --- !u!1001 &1590849107
 PrefabInstance:
   m_ObjectHideFlags: 0

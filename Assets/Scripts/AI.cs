@@ -65,8 +65,10 @@ public class AI
         if (max)
         {
             int score = -10000000;
+
             List<MoveData> allMoves = GetMoves(GameSwitch.Black);
             Debug.Log(allMoves.Count);
+
             foreach (MoveData move in allMoves)
             {
                 moveStack.Push(move);
@@ -79,14 +81,16 @@ public class AI
 
                 if (score > alpha)
                 {
+
                     Debug.Log(score);
                     Debug.Log(alpha);
                     Debug.Log(depth);
                     Debug.Log(move.score);
+
                     move.score = score;
                     if (move.score > bestMove.score && depth == maxDepth)
                     {
-                        Debug.Log(depth);
+                        // Debug.Log(depth);
                         bestMove = move;
                     }
                     alpha = score;
@@ -105,7 +109,7 @@ public class AI
             foreach (MoveData move in allMoves)
             {
                 moveStack.Push(move);
-                Debug.Log(beta);
+                // Debug.Log(beta);
 
                 DoFakeMove(move.firstPosition, move.secondPosition);
 
@@ -118,8 +122,8 @@ public class AI
                     move.score = score;
                     beta = score;
                 }
-                Debug.Log(score);
-                Debug.Log(beta);
+                // Debug.Log(score);
+                // Debug.Log(beta);
                 if (score <= alpha)
                 {
                     break;
@@ -152,10 +156,10 @@ public class AI
     void DoFakeMove(Coordinate fromTil, Coordinate targetTil)
     {
 
-        Debug.Log("Select" + fromTil);
-        Debug.Log("Target" + targetTil);
-        Piece target = board.FindPiece(targetTil);
-        Piece from = board.FindPiece(fromTil);
+        // Debug.Log("Select" + fromTil);
+        // Debug.Log("Target" + targetTil);
+        Piece target = _board.FindPiece(targetTil);
+        Piece from = _board.FindPiece(fromTil);
 
         if (target != null)
         {

@@ -77,13 +77,11 @@ public class GameController : MonoBehaviour
             Debug.Log(firstPosition);
             SelectPiece(firstPiece.go);
             SelectSquare(Target.go);
-
-            //RotateObjectToAngle(chessBoard, 0.25f);
-            if ((selectedObject = SingleClick()) != null)
+        }
+        if ((selectedObject = SingleClick()) != null)
             {
                 if (!IsUIActive())
                 {
-                    //RotateObjectToAngle(chessBoard, 0.25f);
                     if ((selectedObject = SingleClick()) != null)
                     {
                         if (gameStatus == GameStatus.Pick || gameStatus == GameStatus.Move)
@@ -107,7 +105,6 @@ public class GameController : MonoBehaviour
                 }
                 CheckAnimationStatus();
             }
-        }
     }
     void OnGUI()
     {
@@ -180,8 +177,6 @@ public class GameController : MonoBehaviour
         Vector3 currentKilledChessPosition = killedChess.transform.position;
         Vector3 movePosition = new Vector3(currentMovedChessPosition.x, 0, currentMovedChessPosition.z);
         Vector3 killedPosition = new Vector3(currentKilledChessPosition.x, 0, currentKilledChessPosition.z);
-        // Debug.Log("MovePosition: " + movePosition);
-        // Debug.Log("KilledPosition: " + killedPosition);
         return Vector3.Distance(movePosition, killedPosition);
     }
 

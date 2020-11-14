@@ -63,7 +63,7 @@ public class GameController : MonoBehaviour
         }
         else if (gameSwitch == GameSwitch.Black && timer >= 3)
         {
-            MoveData move = AI.GetMove();
+            MoveData move = AI.GetMove(gameSwitch);
             // Debug.Log("KAishi " + move.firstPosition);
             _DoAIMove(move);
             timer = 0;
@@ -78,7 +78,7 @@ public class GameController : MonoBehaviour
             SelectPiece(firstPiece.go);
             SelectSquare(Target.go);
         }
-        
+
         if (!IsUIActive())
         {
             if ((selectedObject = SingleClick()) != null)
@@ -136,7 +136,6 @@ public class GameController : MonoBehaviour
 
             if (CheckSamePosition(latestSelectedChess.transform.position, lastSelectSquare.transform.position))
             {
-                Debug.Log("Stop");
                 Animator chessAnimator = latestSelectedChess.GetComponent<Animator>();
                 chessAnimator.SetBool("Attacking", false);
                 chessAnimator.SetBool("Walking", false);
@@ -173,7 +172,8 @@ public class GameController : MonoBehaviour
         }
     }
 
-    private float Distance2TargetChess(GameObject movedChess, GameObject killedChess) {
+    private float Distance2TargetChess(GameObject movedChess, GameObject killedChess)
+    {
 
         Vector3 currentMovedChessPosition = movedChess.transform.position;
         Vector3 currentKilledChessPosition = killedChess.transform.position;
@@ -247,7 +247,7 @@ public class GameController : MonoBehaviour
     private GameObject SingleClick()
     {
         if (Input.GetMouseButtonDown(0))
-        {  
+        {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hitInfo = new RaycastHit();
             if (Physics.Raycast(ray, out hitInfo, Mathf.Infinity))
@@ -304,7 +304,7 @@ public class GameController : MonoBehaviour
      * Play audio by type
      */
     private void PlayAudioSource(string audioType, Vector3 playPoint)
-
+    {
         // if (IsAudioPlay())
         // {
         //     audioSource.Stop();
@@ -328,7 +328,6 @@ public class GameController : MonoBehaviour
                 AudioSource.PlayClipAtPoint(moving, playPoint);
                 break;
         }
-
     }
 
 }

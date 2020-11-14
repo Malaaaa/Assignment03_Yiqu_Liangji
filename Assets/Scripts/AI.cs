@@ -15,7 +15,7 @@ public class AI
     Weights weight = new Weights();
     MoveData bestMove;
     private GameObject selectedObject;
-
+    public GameSwitch player;
 
     int whiteScore = 0;
     int blackScore = 0;
@@ -44,7 +44,7 @@ public class AI
             }
         }
     }
-    public MoveData GetMove()
+    public MoveData GetMove(GameSwitch player)
     {
         board = Board.Instance;
         GameController = GameController.Instance;
@@ -66,7 +66,7 @@ public class AI
         {
             int score = -10000000;
 
-            List<MoveData> allMoves = GetMoves(GameSwitch.Black);
+            List<MoveData> allMoves = GetMoves(player);
             Debug.Log(allMoves.Count);
 
             foreach (MoveData move in allMoves)
@@ -76,6 +76,7 @@ public class AI
                 DoFakeMove(move.firstPosition, move.secondPosition);
 
                 score = CalculateMinMax(depth - 1, alpha, beta, false);
+                Debug.Log(score);
 
                 UndoFakeMove();
 
@@ -158,8 +159,8 @@ public class AI
 
         // Debug.Log("Select" + fromTil);
         // Debug.Log("Target" + targetTil);
-        Piece target = _board.FindPiece(targetTil);
-        Piece from = _board.FindPiece(fromTil);
+        Piece target = board.FindPiece(targetTil);
+        Piece from = board.FindPiece(fromTil);
 
         if (target != null)
         {
@@ -168,7 +169,6 @@ public class AI
             Debug.Log("Target name"+target.go.name);
         }
         from.coord = targetTil;
-        Debug.Log("from.coord"+from.coord);
     }
 
     List<MoveData> GetMoves(GameSwitch player)
@@ -248,16 +248,20 @@ public class AI
 
     MoveData CreateMove(Coordinate piece, Coordinate move)
     {
+        Piece pieceMoved = board.FindPiece(piece);
+        Piece Target = board.FindPiece(move);
         MoveData tempMove = new MoveData
         {
             firstPosition = piece,
             pieceMoved = board.FindPiece(piece),
-            secondPosition = move
+            secondPosition = move,
         };
-
-        if (board.FindPiece(move) != null)
+        if (Target!= null)
         {
-            tempMove.pieceKilled = board.FindPiece(move);
+            if(((int)pieceMoved.type < 6 && (int)Target.type > 6) || ((int)pieceMoved.type > 6 && (int)Target.type < 6)){
+                tempMove.pieceKilled = board.FindPiece(move);
+                Debug.Log(tempMove.pieceKilled.go.name);
+            }         
         }
 
         return tempMove;

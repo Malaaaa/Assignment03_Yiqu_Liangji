@@ -19,8 +19,7 @@ public class AI
 
     int whiteScore = 0;
     int blackScore = 0;
-    int maxDepth = 3;
-
+    int maxDepth = 2;
 
     public int MaxDepth
     {
@@ -51,6 +50,7 @@ public class AI
         GameController = GameController.Instance;
         bestMove = CreateMove(new Coordinate(0, 0), new Coordinate(0, 0));
         CalculateMinMax(maxDepth, int.MinValue, int.MaxValue, true);
+        Debug.Log(maxDepth);
         return bestMove;
     }
 

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class GameController : MonoBehaviour
@@ -12,51 +13,102 @@ public class GameController : MonoBehaviour
     private readonly float dragFactory = 0.5f;
     private int frame = 0;
     private GameStatus gameStatus;
-    private GameSwitch gameSwitch;
+    public GameSwitch gameSwitch;
     private Board board;
+    private AI AI;
     private GameObject selectedObject;
     private GameObject chessBoard;
 
     private GameObject latestSelectedChess;
 
     private GameObject lastSelectSquare;
-
     private GameObject lastKilledChess;
-
     private AudioSource audioSource;
+    private bool _kingDead = false;
+    float timer = 0;
 
-    void Start()
+    public static GameController Instance;
+    private void Awake()
     {
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else if (Instance != this)
+        {
+            Destroy(this);
+        }
+    }
+    void Start()    
+    {
+        AI = new AI();
+        AI.setSquares();
         chessBoard = GameObject.FindGameObjectWithTag("Chess Game");
         gameStatus = GameStatus.Pick;
         gameSwitch = GameSwitch.White;
-        board = new Board();
+        board = Board.Instance;
+        board.InitPieces();
+        board.InitSquares();
+        board.AddNav();
     }
 
     void Update()
     {
-        if (!IsUIActive())
+        if (_kingDead)
         {
-            //RotateObjectToAngle(chessBoard, 0.25f);
-            SingleRotate(chessBoard);
-            if ((selectedObject = SingleClick()) != null)
-            {
-                if (gameStatus == GameStatus.Pick || gameStatus == GameStatus.Move)
-                {
-                    SelectPiece(selectedObject);
-                }
-                if (gameStatus == GameStatus.Move)
-                {
-                    SelectSquare(selectedObject);
-                }
-            }
-            if (gameStatus == GameStatus.Switch)
-            {
-                SwitchGamer();
-            }
-            CheckAnimationStatus();
+            Debug.Log("WINNER!");
+            //UnityEditor.EditorApplication.isPlaying = false;
+            Application.Quit();
         }
+        if (gameSwitch == GameSwitch.Black && timer < 3)
+        {
+            timer += Time.deltaTime;
+        }
+        else if (gameSwitch == GameSwitch.Black && timer >= 3)
+        {
+            MoveData move = AI.GetMove();
+            Debug.Log("KAishi "+move.firstPosition);
+            _DoAIMove(move);
+            timer = 0;
+        }
+        void _DoAIMove(MoveData move)
+        {
+        Coordinate firstPosition = move.firstPosition;
+        Coordinate secondPosition = move.secondPosition;
+        Piece firstPiece = board.FindPiece(firstPosition);
+        Square Target = board.FindSquare(secondPosition);
+        Debug.Log(firstPosition);
+        SelectPiece(firstPiece.go);
+        SelectSquare(Target.go);
         
+        //RotateObjectToAngle(chessBoard, 0.25f);
+        if ((selectedObject = SingleClick()) != null){
+          if (!IsUIActive())
+          {
+              //RotateObjectToAngle(chessBoard, 0.25f);
+              SingleRotate(chessBoard);
+              if ((selectedObject = SingleClick()) != null)
+              {
+                  if (gameStatus == GameStatus.Pick || gameStatus == GameStatus.Move)
+                  {
+                      SelectPiece(selectedObject);
+                  }
+                  if (gameStatus == GameStatus.Move)
+                  {
+                      SelectSquare(selectedObject);
+                  }
+              }
+              if (gameStatus == GameStatus.Switch)
+              {
+                  SwitchGamer();
+              }
+              CheckAnimationStatus();
+          }
+          if (gameStatus == GameStatus.Switch)
+          {
+              SwitchGamer();
+          }
+          CleanChessStatus();
     }
 
     void OnGUI()
@@ -83,13 +135,14 @@ public class GameController : MonoBehaviour
      *  When Chess finished moving, should clean the animation status.
      *  Change it to "Idle"
      */
-    private void CheckAnimationStatus() {
+    private void CleanChessStatus() {
 
         if (latestSelectedChess != null && lastSelectSquare != null) {
             
             if (CheckSamePosition(latestSelectedChess.transform.position, lastSelectSquare.transform.position)) {
                 Animator chessAnimator = latestSelectedChess.GetComponent<Animator>();
                 chessAnimator.SetBool("Walking", false);
+                chessAnimator.Play("Idle");
             }
         }
 
@@ -115,10 +168,11 @@ public class GameController : MonoBehaviour
     }
 
     private bool CheckSamePosition(Vector3 position1, Vector3 position2) {
+        
         return position1.x == position2.x && position1.z == position2.z;
     }
 
-    private void SelectPiece(GameObject selectedObject)
+    private void    SelectPiece(GameObject selectedObject)
     {
         Piece selectedPiece = board.FindPiece(new Coordinate(selectedObject.transform.localPosition));
         if (selectedPiece != null)
@@ -147,6 +201,12 @@ public class GameController : MonoBehaviour
                 {
                     gameStatus = GameStatus.End;
                 }
+                GameObject killedChess = board.FindPiece(selectedSquare.coord).go;
+                // TODO
+                Debug.Log(lastSelectSquare);
+                Debug.Log(latestSelectedChess);
+                Debug.Log(killedChess);
+                board.KillPiece(selectedSquare.coord);
                 lastKilledChess = board.FindPiece(selectedSquare.coord).go;
                 PlayAudioSource("Attack", latestSelectedChess.transform.position);
                 // board.KillPiece(selectedSquare.coord);
@@ -156,17 +216,6 @@ public class GameController : MonoBehaviour
             gameStatus = GameStatus.Switch;
             gameSwitch = (gameSwitch == GameSwitch.White) ? GameSwitch.Black : GameSwitch.White;
         }
-    }
-
-    private float Distance2TargetChess(GameObject movedChess, GameObject killedChess) {
-
-        Vector3 currentMovedChessPosition = movedChess.transform.position;
-        Vector3 currentKilledChessPosition = killedChess.transform.position;
-        Vector3 movePosition = new Vector3(currentMovedChessPosition.x, 0, currentMovedChessPosition.z);
-        Vector3 killedPosition = new Vector3(currentKilledChessPosition.x, 0, currentKilledChessPosition.z);
-        // Debug.Log("MovePosition: " + movePosition);
-        // Debug.Log("KilledPosition: " + killedPosition);
-        return Vector3.Distance(movePosition, killedPosition);
     }
 
     private void SwitchGamer()
@@ -193,7 +242,7 @@ public class GameController : MonoBehaviour
             {
                 Debug.Log(hitInfo.transform.name);
                 Debug.DrawLine(ray.origin, hitInfo.point);
-                // Debug.Log(hitInfo.transform.gameObject);
+                Debug.Log(hitInfo.transform.gameObject);
                 return hitInfo.transform.gameObject;
             }
         }
@@ -201,45 +250,18 @@ public class GameController : MonoBehaviour
     }
 
     // 右键/单指拖拽旋转物体，每帧调用
-    private void SingleRotate(GameObject gameObject)
-    {
-        if (Input.GetMouseButton(1) && gameObject.transform != null)
-        {
-            RotateObjectToAngle(gameObject, -Input.GetAxis("Mouse X") * Time.deltaTime * rotateFactory);
-        }
-    }
 
     // 顺时针旋转指定物体到指定角度
-    private bool RotateObjectToAngle(GameObject gameObject, float angle)
-    {
-        if (gameObject != null)
-        {
-            gameObject.transform.Rotate(Vector3.up, angle, Space.World);
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
+
 
     // 左键/单指拖拽指定物体
     private void SingleFingerDrag(GameObject gameObject)
     {
-#if UNITY_IOS || UNITY_IPHONE || UNITY_ANDROID
-        // 移动端采用单指拖拽物体
-        if (Input.touchCount == 1 && Input.GetTouch(0).phase == TouchPhase.Moved && gameObject.transform != null)
-        {
-            Vector2 position = Input.GetTouch(0).deltaPosition;
-            gameObject.transform.Translate(-position.x * Time.deltaTime * dragFactory, -position.y * Time.deltaTime * dragFactory, 0);
-        }
-#elif UNITY_EDITOR
         // PC端采用左键拖拽旋转物体
         if (Input.GetMouseButton(0) && gameObject.transform != null)
         {
             DragObjectToPosition(gameObject, new Vector3(Input.GetAxis("Mouse X") * Time.deltaTime * dragFactory, Input.GetAxis("Mouse Y") * Time.deltaTime * dragFactory, 0));
         }
-#endif  
     }
 
     // 拖拽指定物体到指定位置

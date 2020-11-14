@@ -57,6 +57,6 @@ public class Coordinate
     // 将棋盘坐标转换为字符串
     public override string ToString()
     {
-        return (char)('A' + pos[0]) + "-" + (pos[1] + 1);
+        return (char)('A' + pos[0]-1) + "-" + (pos[1]);
     }
 }

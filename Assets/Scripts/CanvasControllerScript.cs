@@ -40,7 +40,6 @@ public class CanvasControllerScript : MonoBehaviour
         if (currentClickedUI != null)
         {
             string currentUIName = currentClickedUI.name;
-            Debug.Log(currentUIName);
             switch (currentUIName)
             {
 

@@ -274,7 +274,7 @@ public class GameController : MonoBehaviour
     /*
      * Play audio by type
      */
-    private void PlayAudioSource(string audioType, Vector3 playPoint)
+    private void PlayAudioSource(string audioType, Vector3 playPoint){
 
         // if (IsAudioPlay())
         // {

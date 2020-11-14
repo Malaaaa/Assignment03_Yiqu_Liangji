@@ -17,6 +17,8 @@ public class GameController : MonoBehaviour
 
     private GameObject lastSelectSquare;
 
+    private GameObject lastKilledChess;
+
     void Start()
     {
         chessBoard = GameObject.FindGameObjectWithTag("Chess Game");
@@ -44,7 +46,7 @@ public class GameController : MonoBehaviour
         {
             SwitchGamer();
         }
-        CleanChessStatus();
+        CheckAnimationStatus();
     }
 
     void OnGUI()
@@ -71,20 +73,36 @@ public class GameController : MonoBehaviour
      *  When Chess finished moving, should clean the animation status.
      *  Change it to "Idle"
      */
-    private void CleanChessStatus() {
+    private void CheckAnimationStatus() {
 
         if (latestSelectedChess != null && lastSelectSquare != null) {
             
             if (CheckSamePosition(latestSelectedChess.transform.position, lastSelectSquare.transform.position)) {
                 Animator chessAnimator = latestSelectedChess.GetComponent<Animator>();
                 chessAnimator.SetBool("Walking", false);
-                chessAnimator.Play("Idle");
+            }
+        }
+
+        if (lastKilledChess != null) {
+            float distance = Distance2TargetChess(latestSelectedChess, lastSelectSquare);
+            Animator moveChessAnimator = latestSelectedChess.GetComponent<Animator>();
+            Animator killedChessAnimator = lastKilledChess.GetComponent<Animator>();
+            if (distance <= 1.5f && distance > 0.5f) {
+                moveChessAnimator.SetBool("Attacking", true);
+                killedChessAnimator.SetBool("Hurting", true);
+            } else if (distance <= 0.5f && distance > 0.3f) {
+                killedChessAnimator.SetBool("Die", true);
+            } else if (distance <= 0.3f) {
+                // moveChessAnimator.Play("Idle",0, 0);
+                moveChessAnimator.SetBool("Attacking", false);
+                moveChessAnimator.SetBool("Walking", false);
+                Object.Destroy(lastKilledChess);
+                lastKilledChess = null;
             }
         }
     }
 
     private bool CheckSamePosition(Vector3 position1, Vector3 position2) {
-        
         return position1.x == position2.x && position1.z == position2.z;
     }
 
@@ -117,17 +135,24 @@ public class GameController : MonoBehaviour
                 {
                     gameStatus = GameStatus.End;
                 }
-                GameObject killedChess = board.FindPiece(selectedSquare.coord).go;
-                // TODO
-                Debug.Log(lastSelectSquare);
-                Debug.Log(latestSelectedChess);
-                Debug.Log(killedChess);
-                board.KillPiece(selectedSquare.coord);
+                lastKilledChess = board.FindPiece(selectedSquare.coord).go;
+                // board.KillPiece(selectedSquare.coord);
             }
             latestSelectedChess = board.MovePiece(selectedSquare.coord);
             gameStatus = GameStatus.Switch;
             gameSwitch = (gameSwitch == GameSwitch.White) ? GameSwitch.Black : GameSwitch.White;
         }
+    }
+
+    private float Distance2TargetChess(GameObject movedChess, GameObject killedChess) {
+
+        Vector3 currentMovedChessPosition = movedChess.transform.position;
+        Vector3 currentKilledChessPosition = killedChess.transform.position;
+        Vector3 movePosition = new Vector3(currentMovedChessPosition.x, 0, currentMovedChessPosition.z);
+        Vector3 killedPosition = new Vector3(currentKilledChessPosition.x, 0, currentKilledChessPosition.z);
+        // Debug.Log("MovePosition: " + movePosition);
+        // Debug.Log("KilledPosition: " + killedPosition);
+        return Vector3.Distance(movePosition, killedPosition);
     }
 
     private void SwitchGamer()
@@ -153,7 +178,7 @@ public class GameController : MonoBehaviour
             if (Physics.Raycast(ray, out hitInfo, Mathf.Infinity))
             {
                 Debug.DrawLine(ray.origin, hitInfo.point);
-                Debug.Log(hitInfo.transform.gameObject);
+                // Debug.Log(hitInfo.transform.gameObject);
                 return hitInfo.transform.gameObject;
             }
         }

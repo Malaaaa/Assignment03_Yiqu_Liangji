@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEngine.AI;
 
-public class Board : MonoBehaviour
+public class Board 
 {
     private int stepCount = 0;                                   
     private int stepSize = 0;                        
@@ -19,24 +19,31 @@ public class Board : MonoBehaviour
                                               "Black Pawn A", "Black Pawn B", "Black Pawn C", "Black Pawn D", 
                                               "Black Pawn E", "Black Pawn F", "Black Pawn G", "Black Pawn H" };
 
-    private List<Square> squares = new List<Square>();              // 方格列表
-    private List<Piece> pieces = new List<Piece>();                 // 棋子列表
+    public List<Square> squares = new List<Square>();              // 方格列表
+    public List<Piece> pieces = new List<Piece>();                 // 棋子列表
 
     public Piece pickPiece = null;                                  // 当前举棋
     public Coordinate pickCoord = null;                             // 当前举棋棋盘坐标
     private List<Coordinate> passCoords = new List<Coordinate>();   // 可行列表
     private List<Coordinate> killCoords = new List<Coordinate>();   // 可杀列表
-  
 
-    public Board()
+    private static Board instance = null;
+    public static Board Instance
     {
-        InitSquares();
-        InitPieces();
+        get
+        {
+            if (instance == null)
+            {
+                instance = new Board();
+            }
+            return instance;
+        }
     }
 
-    // 初始化方格列表，将Unity对象转换为抽象对象
 
-    public void InitSquares()
+    // 初始化方格列表，将Unity对象转换为抽象对象
+    
+    public List<Square> InitSquares()
     {
         for (int i = 0; i < 8; i++)
         {
@@ -45,6 +52,7 @@ public class Board : MonoBehaviour
                 squares.Add(new Square(GameObject.Find("Square " + (char)('A' + j) + '-' + (i + 1))));
             }
         }
+        return squares;
     }
 
     // 初始化棋子列表，将Unity对象转换为抽象对象
@@ -54,6 +62,8 @@ public class Board : MonoBehaviour
         {
             pieces.Add(new Piece(GameObject.Find(pieceStr)));
         }
+    }
+    public void AddNav(){
         foreach(Piece piece in pieces)
         {
             NavMeshAgent nev =piece.go.AddComponent<NavMeshAgent>();
@@ -61,7 +71,6 @@ public class Board : MonoBehaviour
             nev.speed = 1f;
         }
     }
-
     // 举棋
     public GameObject PickPiece(Coordinate coord)
     {
@@ -113,7 +122,7 @@ public class Board : MonoBehaviour
     }
 
     // 检查棋子所有可行可杀路径
-    public void CheckNextSteps(Piece piece)
+    public List<Coordinate> CheckNextSteps(Piece piece)
     {
         switch (piece.type)
         {
@@ -221,6 +230,7 @@ public class Board : MonoBehaviour
                 }
                 break;
         }
+        return passCoords;
     }
 
     // 检查棋子下一步可行可杀

@@ -150,22 +150,24 @@ public class GameController : MonoBehaviour
             Animator killedChessAnimator = lastKilledChess.GetComponent<Animator>();
             if (distance <= 1.5f && distance > 0.5f)
             {
-                Debug.Log("Attack");
+                Debug.Log("Attack set true");
                 moveChessAnimator.SetBool("Attacking", true);
                 killedChessAnimator.SetBool("Hurting", true);
             }
             else if (distance <= 0.5f && distance > 0.3f)
             {
-                Debug.Log("Die");
+                Debug.Log("Attack set false");
                 killedChessAnimator.SetBool("Die", true);
+                moveChessAnimator.SetBool("Attacking", false);
                 PlayAudioSource("Die", lastKilledChess.transform.position);
             }
             else if (distance <= 0.3f)
             {
-                Debug.Log("Stop");
+                // moveChessAnimator.SetBool("Attacking", false);
                 // moveChessAnimator.Play("Idle",0, 0);
-                moveChessAnimator.SetBool("Attacking", false);
+                Debug.Log("Walking set false");
                 moveChessAnimator.SetBool("Walking", false);
+                moveChessAnimator.Play("Idle");
                 Object.Destroy(lastKilledChess);
                 lastKilledChess = null;
             }
@@ -243,7 +245,6 @@ public class GameController : MonoBehaviour
         }
     }
 
-    // 左键/单指点击物体，返回物体名
     private GameObject SingleClick()
     {
         if (Input.GetMouseButtonDown(0))
@@ -261,35 +262,6 @@ public class GameController : MonoBehaviour
         return null;
     }
 
-    // 右键/单指拖拽旋转物体，每帧调用
-
-    // 顺时针旋转指定物体到指定角度
-
-
-    // 左键/单指拖拽指定物体
-    private void SingleFingerDrag(GameObject gameObject)
-    {
-        // PC端采用左键拖拽旋转物体
-        if (Input.GetMouseButton(0) && gameObject.transform != null)
-        {
-            DragObjectToPosition(gameObject, new Vector3(Input.GetAxis("Mouse X") * Time.deltaTime * dragFactory, Input.GetAxis("Mouse Y") * Time.deltaTime * dragFactory, 0));
-        }
-    }
-
-    // 拖拽指定物体到指定位置
-    private bool DragObjectToPosition(GameObject gameObject, Vector3 position)
-    {
-        if (gameObject != null)
-        {
-            gameObject.transform.Translate(position);
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-
     private bool IsUIActive()
     {
         GameObject[] UIPanels = GameObject.FindGameObjectsWithTag("UI");
@@ -303,8 +275,8 @@ public class GameController : MonoBehaviour
     /*
      * Play audio by type
      */
-    private void PlayAudioSource(string audioType, Vector3 playPoint)
-    {
+    private void PlayAudioSource(string audioType, Vector3 playPoint){
+
         // if (IsAudioPlay())
         // {
         //     audioSource.Stop();

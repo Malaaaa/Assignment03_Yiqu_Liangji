@@ -1,52 +1,47 @@
-// 游戏状态
+// declear the status in the game
 public enum GameStatus
 {
-    Start = 0,  // 游戏开始
+    Start = 0,  
 
-    Pick,       // 举棋
-    Move,       // 落子
-    Switch,     // 阵营转换
+    Pick,       
+    Move,       
+    Switch,     
 
-    End,        // 游戏结束
+    End,        
 };
 
-// 阵营转换
 public enum GameSwitch
 {
-    White = -1, // 白方
+    White = -1, 
 
     Undefined,
 
-    Black,      // 黑方
+    Black,      
 };
 
-// 棋盘坐标类型
 public enum CoordType
 {
-    Pos = 0,    // 抽象坐标
-    Vec = 1,    // 实际坐标
+    Pos = 0,    
+    Vec = 1,    
 };
 
-// 方格类型
 public enum SquareType
 {
     Undefined = 0,
 
-    White,      // 白方格
-    Black,      // 黑方格
+    White,      
+    Black,      
 };
 
-// 方格染色
 public enum SquareTint
 {
     Undefined = 0,
 
-    Pick,       // 起点
-    Pass,       // 可行
-    Kill,       // 可杀
+    Pick,       
+    Pass,       
+    Kill,       
 };
 
-// 棋子名字
 public class PieceName
 {
     public const string WhiteCenterKing = "White Center King";
@@ -84,22 +79,21 @@ public class PieceName
     public const string BlackPawnH = "Black Pawn H";
 };
 
-// 棋子类型
 public enum PieceType
 {
-    WhiteKing = 0,      // 白王
-    WhiteQueen,         // 白皇后
-    WhiteBishop,        // 白主教
-    WhiteKnight,        // 白骑士
-    WhiteRook,          // 白车堡
-    WhitePawn,          // 白卒
+    WhiteKing = 0,     
+    WhiteQueen,         
+    WhiteBishop,       
+    WhiteKnight,        
+    WhiteRook,          
+    WhitePawn,         
 
     Undefined = 6,
 
-    BlackKing,          // 黑王
-    BlackQueen,         // 黑皇后
-    BlackBishop,        // 黑主教
-    BlackKnight,        // 黑骑士
-    BlackRook,          // 黑车堡
-    BlackPawn,          // 黑卒
+    BlackKing,          
+    BlackQueen,         
+    BlackBishop,        
+    BlackKnight,        
+    BlackRook,          
+    BlackPawn,          
 };

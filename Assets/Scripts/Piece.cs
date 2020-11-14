@@ -1,12 +1,11 @@
 ﻿using UnityEngine;
-
-// 棋子抽象对象
 public class Piece
-{
-    public GameObject go;       // 棋子Unity对象
-    public PieceType type;      // 棋子类型
-    public Coordinate coord;    // 棋子棋盘坐标
-    public int step = 0;        // 棋子步数
+{   
+    // chess gameobject
+    public GameObject go;       
+    public PieceType type;      
+    public Coordinate coord;    
+    public int step = 0;        
 
     public Piece(GameObject go)
     {
@@ -20,7 +19,9 @@ public class Piece
         return this.go;
     }
 
-    // 棋子名字转类型
+    /*
+     *  Depending on the name, get the chess type
+     */
     public PieceType NameToType(string name)
     {
         PieceType type = PieceType.Undefined;
@@ -110,7 +111,6 @@ public class Piece
         return type;
     }
 
-    // 传入棋子类型，判断该棋子是否是敌人
     public bool IsEnemy(PieceType type)
     {
         if (((int)this.type < 6 && (int)type > 6) || ((int)this.type > 6 && (int)type < 6))

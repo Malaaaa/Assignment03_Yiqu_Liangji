@@ -19,13 +19,12 @@ public class Board
                                               "Black Pawn A", "Black Pawn B", "Black Pawn C", "Black Pawn D", 
                                               "Black Pawn E", "Black Pawn F", "Black Pawn G", "Black Pawn H" };
 
-    public List<Square> squares = new List<Square>();              // 方格列表
-    public List<Piece> pieces = new List<Piece>();                 // 棋子列表
-
-    public Piece pickPiece = null;                                  // 当前举棋
-    public Coordinate pickCoord = null;                             // 当前举棋棋盘坐标
-    private List<Coordinate> passCoords = new List<Coordinate>();   // 可行列表
-    private List<Coordinate> killCoords = new List<Coordinate>();   // 可杀列表
+    public List<Square> squares = new List<Square>();              
+    public List<Piece> pieces = new List<Piece>();                 
+    public Piece pickPiece = null;                                  
+    public Coordinate pickCoord = null;                             
+    private List<Coordinate> passCoords = new List<Coordinate>();  
+    private List<Coordinate> killCoords = new List<Coordinate>();   
 
     private static Board instance = null;
     public static Board Instance
@@ -40,9 +39,10 @@ public class Board
         }
     }
 
-
-    // 初始化方格列表，将Unity对象转换为抽象对象
     
+    /*
+     *  Init the squares and the chess in the ground
+     */
     public List<Square> InitSquares()
     {
         for (int i = 0; i < 8; i++)
@@ -55,7 +55,7 @@ public class Board
         return squares;
     }
 
-    // 初始化棋子列表，将Unity对象转换为抽象对象
+    // init the chess
     public void InitPieces()
     {
         foreach (string pieceStr in pieceStrArr)
@@ -71,7 +71,7 @@ public class Board
             nev.speed = 1f;
         }
     }
-    // 举棋
+    // choose chess
     public GameObject PickPiece(Coordinate coord)
     {
         if (coord == null)
@@ -79,17 +79,17 @@ public class Board
             return null;
         }
 
-        ClearSquares(); // 清除方格染色
+        ClearSquares();
 
         pickCoord = coord;
         pickPiece = FindPiece(pickCoord);
         CheckNextSteps(pickPiece);
 
-        TintSquares(); // 方格染色
+        TintSquares();
         return pickPiece.go;
     }
 
-    // 落子
+    // moving
     public GameObject MovePiece(Coordinate coord)
     {
         if (pickPiece != null)
@@ -111,7 +111,7 @@ public class Board
         animator.SetBool(paramName, isActive);
     }
 
-    // 杀子
+    // kill
     public void KillPiece(Coordinate coord)
     {
         Piece piece = FindPiece(coord);
@@ -121,7 +121,12 @@ public class Board
         }
     }
 
-    // 检查棋子所有可行可杀路径
+    /*
+     *  path checking
+     *  Thinking:
+     *  Different chess have different rules
+     *  Pawn, Bishop, King, Queen, Rook, Knight
+     */ 
     public List<Coordinate> CheckNextSteps(Piece piece)
     {
         switch (piece.type)
@@ -233,7 +238,7 @@ public class Board
         return passCoords;
     }
 
-    // 检查棋子下一步可行可杀
+    // check the current chosed chess` nest step
     public bool CheckNextStep(int x, int y, int flag = 0)
     {
         Coordinate coord = new Coordinate(x, y);
@@ -257,7 +262,7 @@ public class Board
         return true;
     }
 
-    // 找到方格抽象对象
+    // get square
     public Square FindSquare(Coordinate coord)
     {
         if (coord == null)
@@ -275,7 +280,7 @@ public class Board
         return null;
     }
 
-    // 找到棋子抽象对象
+    // get chess
     public Piece FindPiece(Coordinate coord)
     {
         if (coord == null)
@@ -293,24 +298,26 @@ public class Board
         return null;
     }
 
-    // 对所有可行可杀方格染色
+    /*
+     *  Show the high light in the sequence
+     */
     public void TintSquares()
     {
-        if (pickPiece != null) // 对举棋方格染色
+        if (pickPiece != null) 
         {
             TintSquare(pickPiece.coord, SquareTint.Pick);
         }
-        foreach (Coordinate passCoord in passCoords) // 对所有可行方格染色
+        foreach (Coordinate passCoord in passCoords) 
         {
             TintSquare(passCoord, SquareTint.Pass);
         }
-        foreach (Coordinate killCoord in killCoords) // 对所有可杀方格染色
+        foreach (Coordinate killCoord in killCoords) 
         {
             TintSquare(killCoord, SquareTint.Kill);
         }
     }
 
-    // 对单个方格染色
+    
     public bool TintSquare(Coordinate coord, SquareTint type)
     {
         if (coord == null)
@@ -324,15 +331,15 @@ public class Board
             if ((renderer = square.go.GetComponent<MeshRenderer>()) != null && renderer.material != null)
             {
                 Color color = new Color32(223, 210, 192, 255);
-                if (type == SquareTint.Pick) // 举棋为蓝色
+                if (type == SquareTint.Pick)        // could be choose, be green
                 {
                     color = new Color32(33, 150, 243, 255);
                 }
-                else if (type == SquareTint.Pass) // 可行为绿色
+                else if (type == SquareTint.Pass)   // could be move, be blue
                 {
                     color = new Color32(76, 175, 80, 255);
                 }
-                else if (type == SquareTint.Kill) // 可杀为红色
+                else if (type == SquareTint.Kill)   // could be killed, be red
                 {
                     color = new Color32(244, 67, 54, 255);
                 }
@@ -344,7 +351,9 @@ public class Board
         return false;
     }
 
-    // 清除所有可行可杀方格染色
+    /*
+     *  Clean the high light in the sequences
+     */
     public void ClearSquares()
     {
         if (pickCoord != null)
@@ -364,7 +373,6 @@ public class Board
         killCoords.Clear();
     }
 
-    // 清除单个方格染色
     public bool ClearSquare(Coordinate coord)
     {
         if (coord == null)

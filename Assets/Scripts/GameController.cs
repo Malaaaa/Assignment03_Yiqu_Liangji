@@ -4,6 +4,10 @@ using UnityEngine.SceneManagement;
 public class GameController : MonoBehaviour
 {
     public Font font;
+    public AudioClip moving;
+    public AudioClip attack;
+    public AudioClip die;
+    public AudioClip hurt;
     private readonly float rotateFactory = 100f;
     private readonly float dragFactory = 0.5f;
     private int frame = 0;
@@ -19,6 +23,8 @@ public class GameController : MonoBehaviour
 
     private GameObject lastKilledChess;
 
+    private AudioSource audioSource;
+
     void Start()
     {
         chessBoard = GameObject.FindGameObjectWithTag("Chess Game");
@@ -29,24 +35,28 @@ public class GameController : MonoBehaviour
 
     void Update()
     {
-        //RotateObjectToAngle(chessBoard, 0.25f);
-        SingleRotate(chessBoard);
-        if ((selectedObject = SingleClick()) != null)
+        if (!IsUIActive())
         {
-            if (gameStatus == GameStatus.Pick || gameStatus == GameStatus.Move)
+            //RotateObjectToAngle(chessBoard, 0.25f);
+            SingleRotate(chessBoard);
+            if ((selectedObject = SingleClick()) != null)
             {
-                SelectPiece(selectedObject);
+                if (gameStatus == GameStatus.Pick || gameStatus == GameStatus.Move)
+                {
+                    SelectPiece(selectedObject);
+                }
+                if (gameStatus == GameStatus.Move)
+                {
+                    SelectSquare(selectedObject);
+                }
             }
-            if (gameStatus == GameStatus.Move)
+            if (gameStatus == GameStatus.Switch)
             {
-                SelectSquare(selectedObject);
+                SwitchGamer();
             }
+            CheckAnimationStatus();
         }
-        if (gameStatus == GameStatus.Switch)
-        {
-            SwitchGamer();
-        }
-        CheckAnimationStatus();
+        
     }
 
     void OnGUI()
@@ -90,8 +100,10 @@ public class GameController : MonoBehaviour
             if (distance <= 1.5f && distance > 0.5f) {
                 moveChessAnimator.SetBool("Attacking", true);
                 killedChessAnimator.SetBool("Hurting", true);
+                PlayAudioSource("Hurt", lastKilledChess.transform.position);
             } else if (distance <= 0.5f && distance > 0.3f) {
                 killedChessAnimator.SetBool("Die", true);
+                PlayAudioSource("Die", lastKilledChess.transform.position);
             } else if (distance <= 0.3f) {
                 // moveChessAnimator.Play("Idle",0, 0);
                 moveChessAnimator.SetBool("Attacking", false);
@@ -136,9 +148,11 @@ public class GameController : MonoBehaviour
                     gameStatus = GameStatus.End;
                 }
                 lastKilledChess = board.FindPiece(selectedSquare.coord).go;
+                PlayAudioSource("Attack", latestSelectedChess.transform.position);
                 // board.KillPiece(selectedSquare.coord);
             }
             latestSelectedChess = board.MovePiece(selectedSquare.coord);
+            PlayAudioSource("Move", latestSelectedChess.transform.position);
             gameStatus = GameStatus.Switch;
             gameSwitch = (gameSwitch == GameSwitch.White) ? GameSwitch.Black : GameSwitch.White;
         }
@@ -177,6 +191,7 @@ public class GameController : MonoBehaviour
             RaycastHit hitInfo = new RaycastHit();
             if (Physics.Raycast(ray, out hitInfo, Mathf.Infinity))
             {
+                Debug.Log(hitInfo.transform.name);
                 Debug.DrawLine(ray.origin, hitInfo.point);
                 // Debug.Log(hitInfo.transform.gameObject);
                 return hitInfo.transform.gameObject;
@@ -239,5 +254,50 @@ public class GameController : MonoBehaviour
         {
             return false;
         }
+    }
+
+    private bool IsUIActive()
+    {
+        GameObject[] UIPanels = GameObject.FindGameObjectsWithTag("UI");
+        if (UIPanels.Length > 0)
+        {
+            return true;
+        }
+        return false;
+    }
+
+    /*
+     * Play audio by type
+     */
+    private void PlayAudioSource(string audioType, Vector3 playPoint)
+    {
+        if (IsAudioPlay())
+        {
+            audioSource.Stop();
+        }
+        switch (audioType)
+        {
+            case "Attack":       
+                AudioSource.PlayClipAtPoint(attack, playPoint);
+                break;
+
+            case "Die":
+                AudioSource.PlayClipAtPoint(die, playPoint);
+                break;
+
+            case "Hurt":
+                AudioSource.PlayClipAtPoint(hurt, playPoint);
+                break;
+
+            case "Move":
+                AudioSource.PlayClipAtPoint(moving, playPoint);
+                break;
+        }
+
+    }
+
+    private bool IsAudioPlay()
+    {
+        return audioSource.isPlaying;
     }
 }

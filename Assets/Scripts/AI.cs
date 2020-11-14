@@ -4,10 +4,9 @@ using UnityEngine;
 
 public class AI
 {
-    public static AI Instance = null;
 
-    private static List<Square> squares = new List<Square>();
-    private static List<Piece> pieces = new List<Piece>();
+    List<Square> squares = new List<Square>();
+    List<Piece> pieces = new List<Piece>();
     List<Piece> Alivepieces = new List<Piece>();
 
     List<Piece> blackPieces = new List<Piece>();
@@ -21,8 +20,7 @@ public class AI
 
     int whiteScore = 0;
     int blackScore = 0;
-    int maxDepth = 2;
-    bool fakeLose = false;
+    int maxDepth = 3;
 
     public int MaxDepth
     {
@@ -41,14 +39,19 @@ public class AI
     int _blackScore = 0;
     Board _board = Board.Instance;
     GameController GameController;
-
+    public void setSquares()
+    {
+        for (int i = 0; i < 8; i++)
+        {
+            for (int j = 0; j < 8; j++)
+            {
+                squares.Add(new Square(GameObject.Find("Square " + (char)('A' + j) + '-' + (i + 1))));
+            }
+        }
+    }
     public MoveData GetMove()
     {
         _board = Board.Instance;
-        squares =_board.squares;
-        Debug.Log(squares.Count);
-
-
         GameController = GameController.Instance;
         bestMove = CreateMove(new Coordinate(0, 0), new Coordinate(0, 0));
         CalculateMinMax(maxDepth, int.MinValue, int.MaxValue, true);
@@ -66,7 +69,7 @@ public class AI
         if (max)
         {
             int score = -10000000;
-            List<MoveData> allMoves = _GetMoves(AIcolor);
+            List<MoveData> allMoves = _GetMoves(GameSwitch.Black);
             Debug.Log(allMoves.Count);
             foreach (MoveData move in allMoves)
             {
@@ -103,11 +106,10 @@ public class AI
         else
         {
             int score = 10000000;
-            List<MoveData> allMoves = _GetMoves(AIcolor);
+            List<MoveData> allMoves = _GetMoves(GameSwitch.White);
             foreach (MoveData move in allMoves)
             {
                 moveStack.Push(move);
-                Debug.Log(score);
                 Debug.Log(beta);
 
                 _DoFakeMove(move.firstPosition, move.secondPosition);
@@ -139,18 +141,17 @@ public class AI
         Coordinate movedFrom = tempMove.firstPosition;
         Piece pieceKilled = tempMove.pieceKilled;
         Piece pieceMoved = tempMove.pieceMoved;
-
         Piece CurrentPiece = _board.FindPiece(movedTo);
         CurrentPiece.coord = movedFrom;
         if (pieceKilled != null)
         {
             Piece piece = pieceKilled;
-            piece.coord = movedTo;
         }
         else
         {
             movedTo = null;
         }
+
     }
 
     void _DoFakeMove(Coordinate fromTil, Coordinate targetTil)
@@ -163,39 +164,23 @@ public class AI
 
         if (target != null)
         {
-            if ((target.type == PieceType.WhiteKing &&
-                (int)from.type > 6) || (target.type == PieceType.BlackKing &&
-                (int)from.type < 6))
-            {
-                Debug.Log("King is being targeted!");
-                fakeLose = true;
-            }
-            else
-            {
-                fakeLose = false;
-            }
             target = null;
         }
         from.coord = targetTil;
     }
 
-    List<MoveData> _GetMoves(string color)
+    List<MoveData> _GetMoves(GameSwitch player)
     {
         List<MoveData> turnMove = new List<MoveData>();
         List<Piece> pieces = new List<Piece>();
 
-        if (color == "white")
+        if (player == GameSwitch.White)
             pieces = whitePieces;
         else pieces = blackPieces;
-        Debug.Log(pieces.Count + "allili");
         foreach (Piece piece in pieces)
         {
             _board.pickPiece = piece;
             List<Coordinate> passCoords = _board.CheckNextSteps(piece);
-            Debug.Log(passCoords.Count);
-            Debug.Log(piece.coord);
-
-
             foreach (Coordinate cood in passCoords)
             {
                 MoveData newMove = CreateMove(piece.coord, cood);
@@ -233,18 +218,13 @@ public class AI
         whiteScore = 0;
         pieces.Clear();
 
-        for(int i=0; i<64;i++)
+        foreach(Square square in squares)
         {
-            Piece CurrentPiece = _board.FindPiece(squares[i].coord);
-            Debug.Log(squares[i].go.name);
-                      
-     
+            Piece CurrentPiece = _board.FindPiece(square.coord);
             if (CurrentPiece != null)
             {
                 {
-                    pieces.Add(CurrentPiece);
-                Debug.Log(CurrentPiece.go.name);          
-
+                pieces.Add(CurrentPiece);
                 }
             }
         }
@@ -264,12 +244,12 @@ public class AI
 
     }
 
-    MoveData CreateMove(Coordinate tile, Coordinate move)
+    MoveData CreateMove(Coordinate piece, Coordinate move)
     {
         MoveData tempMove = new MoveData
         {
-            firstPosition = tile,
-            pieceMoved = _board.FindPiece(tile),
+            firstPosition = piece,
+            pieceMoved = _board.FindPiece(piece),
             secondPosition = move
         };
 

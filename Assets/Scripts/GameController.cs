@@ -8,7 +8,7 @@ public class GameController : MonoBehaviour
     private readonly float dragFactory = 0.5f;
     private int frame = 0;
     private GameStatus gameStatus;
-    private GameSwitch gameSwitch;
+    public GameSwitch gameSwitch;
     private Board board;
     private AI AI;
     private GameObject selectedObject;
@@ -35,14 +35,13 @@ public class GameController : MonoBehaviour
     void Start()    
     {
         AI = new AI();
-
+        AI.setSquares();
         chessBoard = GameObject.FindGameObjectWithTag("Chess Game");
         gameStatus = GameStatus.Pick;
         gameSwitch = GameSwitch.White;
         board = Board.Instance;
         board.InitPieces();
         board.InitSquares();
-
         board.AddNav();
     }
 
@@ -54,14 +53,14 @@ public class GameController : MonoBehaviour
             //UnityEditor.EditorApplication.isPlaying = false;
             Application.Quit();
         }
-        if (!(gameSwitch == GameSwitch.White) && timer < 1)
+        if (gameSwitch == GameSwitch.Black && timer < 3)
         {
             timer += Time.deltaTime;
         }
-        else if (!(gameSwitch == GameSwitch.White) && timer >= 1)
+        else if (gameSwitch == GameSwitch.Black && timer >= 3)
         {
             MoveData move = AI.GetMove();
-            Debug.Log("KAishi "+move.secondPosition);
+            Debug.Log("KAishi "+move.firstPosition);
             _DoAIMove(move);
             timer = 0;
         }
@@ -73,7 +72,8 @@ public class GameController : MonoBehaviour
         Square Target = board.FindSquare(secondPosition);
         Debug.Log(firstPosition);
         SelectPiece(firstPiece.go);
-        SelectPiece(Target.go);
+        SelectSquare(Target.go);
+
     }
         //RotateObjectToAngle(chessBoard, 0.25f);
         if ((selectedObject = SingleClick()) != null)

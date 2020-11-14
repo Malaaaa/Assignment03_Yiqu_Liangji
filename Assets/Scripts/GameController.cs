@@ -18,15 +18,12 @@ public class GameController : MonoBehaviour
     private AI AI;
     private GameObject selectedObject;
     private GameObject chessBoard;
-
     private GameObject latestSelectedChess;
-
     private GameObject lastSelectSquare;
     private GameObject lastKilledChess;
     private AudioSource audioSource;
     private bool _kingDead = false;
     float timer = 0;
-
     public static GameController Instance;
     private void Awake()
     {
@@ -39,7 +36,7 @@ public class GameController : MonoBehaviour
             Destroy(this);
         }
     }
-    void Start()    
+    void Start()
     {
         AI = new AI();
         AI.setSquares();
@@ -67,50 +64,51 @@ public class GameController : MonoBehaviour
         else if (gameSwitch == GameSwitch.Black && timer >= 3)
         {
             MoveData move = AI.GetMove();
-            Debug.Log("KAishi "+move.firstPosition);
+            Debug.Log("KAishi " + move.firstPosition);
             _DoAIMove(move);
             timer = 0;
         }
         void _DoAIMove(MoveData move)
         {
-        Coordinate firstPosition = move.firstPosition;
-        Coordinate secondPosition = move.secondPosition;
-        Piece firstPiece = board.FindPiece(firstPosition);
-        Square Target = board.FindSquare(secondPosition);
-        Debug.Log(firstPosition);
-        SelectPiece(firstPiece.go);
-        SelectSquare(Target.go);
-        
-        //RotateObjectToAngle(chessBoard, 0.25f);
-        if ((selectedObject = SingleClick()) != null){
-          if (!IsUIActive())
-          {
-              //RotateObjectToAngle(chessBoard, 0.25f);
-              SingleRotate(chessBoard);
-              if ((selectedObject = SingleClick()) != null)
-              {
-                  if (gameStatus == GameStatus.Pick || gameStatus == GameStatus.Move)
-                  {
-                      SelectPiece(selectedObject);
-                  }
-                  if (gameStatus == GameStatus.Move)
-                  {
-                      SelectSquare(selectedObject);
-                  }
-              }
-              if (gameStatus == GameStatus.Switch)
-              {
-                  SwitchGamer();
-              }
-              CheckAnimationStatus();
-          }
-          if (gameStatus == GameStatus.Switch)
-          {
-              SwitchGamer();
-          }
-          CleanChessStatus();
-    }
+            Coordinate firstPosition = move.firstPosition;
+            Coordinate secondPosition = move.secondPosition;
+            Piece firstPiece = board.FindPiece(firstPosition);
+            Square Target = board.FindSquare(secondPosition);
+            Debug.Log(firstPosition);
+            SelectPiece(firstPiece.go);
+            SelectSquare(Target.go);
 
+            //RotateObjectToAngle(chessBoard, 0.25f);
+            if ((selectedObject = SingleClick()) != null)
+            {
+                if (!IsUIActive())
+                {
+                    //RotateObjectToAngle(chessBoard, 0.25f);
+                    if ((selectedObject = SingleClick()) != null)
+                    {
+                        if (gameStatus == GameStatus.Pick || gameStatus == GameStatus.Move)
+                        {
+                            SelectPiece(selectedObject);
+                        }
+                        if (gameStatus == GameStatus.Move)
+                        {
+                            SelectSquare(selectedObject);
+                        }
+                    }
+                    if (gameStatus == GameStatus.Switch)
+                    {
+                        SwitchGamer();
+                    }
+                    CheckAnimationStatus();
+                }
+                if (gameStatus == GameStatus.Switch)
+                {
+                    SwitchGamer();
+                }
+                CheckAnimationStatus();
+            }
+        }
+    }
     void OnGUI()
     {
         GUIStyle style = new GUIStyle
@@ -135,29 +133,38 @@ public class GameController : MonoBehaviour
      *  When Chess finished moving, should clean the animation status.
      *  Change it to "Idle"
      */
-    private void CleanChessStatus() {
+    private void CheckAnimationStatus()
+    {
 
-        if (latestSelectedChess != null && lastSelectSquare != null) {
-            
-            if (CheckSamePosition(latestSelectedChess.transform.position, lastSelectSquare.transform.position)) {
+        if (latestSelectedChess != null && lastSelectSquare != null)
+        {
+
+            if (CheckSamePosition(latestSelectedChess.transform.position, lastSelectSquare.transform.position))
+            {
                 Animator chessAnimator = latestSelectedChess.GetComponent<Animator>();
                 chessAnimator.SetBool("Walking", false);
                 chessAnimator.Play("Idle");
             }
         }
 
-        if (lastKilledChess != null) {
+        if (lastKilledChess != null)
+        {
             float distance = Distance2TargetChess(latestSelectedChess, lastSelectSquare);
             Animator moveChessAnimator = latestSelectedChess.GetComponent<Animator>();
             Animator killedChessAnimator = lastKilledChess.GetComponent<Animator>();
-            if (distance <= 1.5f && distance > 0.5f) {
+            if (distance <= 1.5f && distance > 0.5f)
+            {
                 moveChessAnimator.SetBool("Attacking", true);
                 killedChessAnimator.SetBool("Hurting", true);
                 PlayAudioSource("Hurt", lastKilledChess.transform.position);
-            } else if (distance <= 0.5f && distance > 0.3f) {
+            }
+            else if (distance <= 0.5f && distance > 0.3f)
+            {
                 killedChessAnimator.SetBool("Die", true);
                 PlayAudioSource("Die", lastKilledChess.transform.position);
-            } else if (distance <= 0.3f) {
+            }
+            else if (distance <= 0.3f)
+            {
                 // moveChessAnimator.Play("Idle",0, 0);
                 moveChessAnimator.SetBool("Attacking", false);
                 moveChessAnimator.SetBool("Walking", false);
@@ -167,12 +174,25 @@ public class GameController : MonoBehaviour
         }
     }
 
-    private bool CheckSamePosition(Vector3 position1, Vector3 position2) {
-        
+    private float Distance2TargetChess(GameObject movedChess, GameObject killedChess) {
+
+        Vector3 currentMovedChessPosition = movedChess.transform.position;
+        Vector3 currentKilledChessPosition = killedChess.transform.position;
+        Vector3 movePosition = new Vector3(currentMovedChessPosition.x, 0, currentMovedChessPosition.z);
+        Vector3 killedPosition = new Vector3(currentKilledChessPosition.x, 0, currentKilledChessPosition.z);
+        // Debug.Log("MovePosition: " + movePosition);
+        // Debug.Log("KilledPosition: " + killedPosition);
+        return Vector3.Distance(movePosition, killedPosition);
+    }
+
+
+    private bool CheckSamePosition(Vector3 position1, Vector3 position2)
+    {
+
         return position1.x == position2.x && position1.z == position2.z;
     }
 
-    private void    SelectPiece(GameObject selectedObject)
+    private void SelectPiece(GameObject selectedObject)
     {
         Piece selectedPiece = board.FindPiece(new Coordinate(selectedObject.transform.localPosition));
         if (selectedPiece != null)
@@ -299,7 +319,7 @@ public class GameController : MonoBehaviour
         }
         switch (audioType)
         {
-            case "Attack":       
+            case "Attack":
                 AudioSource.PlayClipAtPoint(attack, playPoint);
                 break;
 

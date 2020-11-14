@@ -11,9 +11,8 @@ public class AI
 
     List<Piece> blackPieces = new List<Piece>();
     List<Piece> whitePieces = new List<Piece>();
-    List<MoveData> _moves = new List<MoveData>();
     Stack<MoveData> moveStack = new Stack<MoveData>();
-    Weights _weight = new Weights();
+    Weights weight = new Weights();
     MoveData bestMove;
     private GameObject selectedObject;
 
@@ -21,6 +20,7 @@ public class AI
     int whiteScore = 0;
     int blackScore = 0;
     int maxDepth = 3;
+
 
     public int MaxDepth
     {
@@ -33,11 +33,7 @@ public class AI
             maxDepth = value;
         }
     }
-    public string AIcolor = "black";
-
-    int _whiteScore = 0;
-    int _blackScore = 0;
-    Board _board = Board.Instance;
+    Board board = Board.Instance;
     GameController GameController;
     public void setSquares()
     {
@@ -51,7 +47,7 @@ public class AI
     }
     public MoveData GetMove()
     {
-        _board = Board.Instance;
+        board = Board.Instance;
         GameController = GameController.Instance;
         bestMove = CreateMove(new Coordinate(0, 0), new Coordinate(0, 0));
         CalculateMinMax(maxDepth, int.MinValue, int.MaxValue, true);
@@ -60,33 +56,32 @@ public class AI
 
     int CalculateMinMax(int depth, int alpha, int beta, bool max)
     {
-        _GetBoardState();
+        GetBoardState();
 
         if (depth == 0)
         {
-            return _Evaluate();
+            return Evaluate();
         }
         if (max)
         {
             int score = -10000000;
-            List<MoveData> allMoves = _GetMoves(GameSwitch.Black);
+            List<MoveData> allMoves = GetMoves(GameSwitch.Black);
             Debug.Log(allMoves.Count);
             foreach (MoveData move in allMoves)
             {
                 moveStack.Push(move);
 
-                _DoFakeMove(move.firstPosition, move.secondPosition);
+                DoFakeMove(move.firstPosition, move.secondPosition);
 
                 score = CalculateMinMax(depth - 1, alpha, beta, false);
 
-                _UndoFakeMove();
+                UndoFakeMove();
 
                 if (score > alpha)
                 {
                     Debug.Log(score);
                     Debug.Log(alpha);
                     Debug.Log(depth);
-                    Debug.Log(maxDepth);
                     Debug.Log(move.score);
                     move.score = score;
                     if (move.score > bestMove.score && depth == maxDepth)
@@ -106,17 +101,17 @@ public class AI
         else
         {
             int score = 10000000;
-            List<MoveData> allMoves = _GetMoves(GameSwitch.White);
+            List<MoveData> allMoves = GetMoves(GameSwitch.White);
             foreach (MoveData move in allMoves)
             {
                 moveStack.Push(move);
                 Debug.Log(beta);
 
-                _DoFakeMove(move.firstPosition, move.secondPosition);
+                DoFakeMove(move.firstPosition, move.secondPosition);
 
                 score = CalculateMinMax(depth - 1, alpha, beta, true);
 
-                _UndoFakeMove();
+                UndoFakeMove();
 
                 if (score < beta)
                 {
@@ -134,14 +129,14 @@ public class AI
         }
     }
 
-    void _UndoFakeMove()
+    void UndoFakeMove()
     {
         MoveData tempMove = moveStack.Pop();
         Coordinate movedTo = tempMove.secondPosition;
         Coordinate movedFrom = tempMove.firstPosition;
         Piece pieceKilled = tempMove.pieceKilled;
         Piece pieceMoved = tempMove.pieceMoved;
-        Piece CurrentPiece = _board.FindPiece(movedTo);
+        Piece CurrentPiece = board.FindPiece(movedTo);
         CurrentPiece.coord = movedFrom;
         if (pieceKilled != null)
         {
@@ -154,22 +149,25 @@ public class AI
 
     }
 
-    void _DoFakeMove(Coordinate fromTil, Coordinate targetTil)
+    void DoFakeMove(Coordinate fromTil, Coordinate targetTil)
     {
 
         Debug.Log("Select" + fromTil);
         Debug.Log("Target" + targetTil);
-        Piece target = _board.FindPiece(targetTil);
-        Piece from = _board.FindPiece(fromTil);
+        Piece target = board.FindPiece(targetTil);
+        Piece from = board.FindPiece(fromTil);
 
         if (target != null)
         {
+            Debug.Log("Target name"+target.go.name);
             target = null;
+            Debug.Log("Target name"+target.go.name);
         }
         from.coord = targetTil;
+        Debug.Log("from.coord"+from.coord);
     }
 
-    List<MoveData> _GetMoves(GameSwitch player)
+    List<MoveData> GetMoves(GameSwitch player)
     {
         List<MoveData> turnMove = new List<MoveData>();
         List<Piece> pieces = new List<Piece>();
@@ -179,20 +177,20 @@ public class AI
         else pieces = blackPieces;
         foreach (Piece piece in pieces)
         {
-            _board.pickPiece = piece;
-            List<Coordinate> passCoords = _board.CheckNextSteps(piece);
+            board.pickPiece = piece;
+            List<Coordinate> passCoords = board.CheckNextSteps(piece);
             foreach (Coordinate cood in passCoords)
             {
                 MoveData newMove = CreateMove(piece.coord, cood);
                 turnMove.Add(newMove);
             }
-            _board.pickPiece = null;
+            board.pickPiece = null;
             passCoords.Clear();
         }
         return turnMove;
     }
 
-    int _Evaluate()
+    int Evaluate()
     {
         float pieceDifference = 0;
         float whiteWeight = 0;
@@ -200,17 +198,17 @@ public class AI
 
         foreach (Piece tile in whitePieces)
         {
-            whiteWeight += _weight.GetBoardWeight(tile.type, tile.coord);
+            whiteWeight += weight.GetBoardWeight(tile.type, tile.coord);
         }
         foreach (Piece tile in blackPieces)
         {
-            blackWeight += _weight.GetBoardWeight(tile.type, tile.coord);
+            blackWeight += weight.GetBoardWeight(tile.type, tile.coord);
         }
-        pieceDifference = (_blackScore + (blackWeight / 100)) - (_whiteScore + (whiteWeight / 100));
+        pieceDifference = (blackScore + (blackWeight / 100)) - (whiteScore + (whiteWeight / 100));
         return Mathf.RoundToInt(pieceDifference * 100);
     }
 
-    void _GetBoardState()
+    void GetBoardState()
     {
         blackPieces.Clear();
         whitePieces.Clear();
@@ -220,7 +218,7 @@ public class AI
 
         foreach(Square square in squares)
         {
-            Piece CurrentPiece = _board.FindPiece(square.coord);
+            Piece CurrentPiece = board.FindPiece(square.coord);
             if (CurrentPiece != null)
             {
                 {
@@ -232,12 +230,12 @@ public class AI
         {
             if ((int)piece.type > 6)
             {
-                blackScore += _weight.GetPieceWeight(piece.type);
+                blackScore += weight.GetPieceWeight(piece.type);
                 blackPieces.Add(piece);
             }
             else
             {
-                whiteScore += _weight.GetPieceWeight(piece.type);
+                whiteScore += weight.GetPieceWeight(piece.type);
                 whitePieces.Add(piece);
             }
         }
@@ -249,13 +247,13 @@ public class AI
         MoveData tempMove = new MoveData
         {
             firstPosition = piece,
-            pieceMoved = _board.FindPiece(piece),
+            pieceMoved = board.FindPiece(piece),
             secondPosition = move
         };
 
-        if (_board.FindPiece(move) != null)
+        if (board.FindPiece(move) != null)
         {
-            tempMove.pieceKilled = _board.FindPiece(move);
+            tempMove.pieceKilled = board.FindPiece(move);
         }
 
         return tempMove;

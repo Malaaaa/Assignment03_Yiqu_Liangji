@@ -308,10 +308,7 @@ public class GameController : MonoBehaviour
      */
     private void PlayAudioSource(string audioType, Vector3 playPoint)
     {
-        if (IsAudioPlay())
-        {
-            audioSource.Stop();
-        }
+
         switch (audioType)
         {
             case "Attack":
@@ -333,8 +330,4 @@ public class GameController : MonoBehaviour
 
     }
 
-    private bool IsAudioPlay()
-    {
-        return audioSource.isPlaying;
-    }
 }

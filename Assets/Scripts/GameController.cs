@@ -23,6 +23,7 @@ public class GameController : MonoBehaviour
     private GameObject lastKilledChess;
     private AudioSource audioSource;
     private bool _kingDead = false;
+    private int GameLevel = 0;
     float timer = 0;
     public static GameController Instance;
     private void Awake()
@@ -300,6 +301,11 @@ public class GameController : MonoBehaviour
                 break;
         }
 
+    }
+
+    public void SetLevel(int level) {
+
+        this.GameLevel = level;
     }
 
 }

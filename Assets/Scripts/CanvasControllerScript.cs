@@ -12,12 +12,12 @@ public class CanvasControllerScript : MonoBehaviour
 
     public GameObject Background;
 
-    public GameController gameController;
+    private GameController controller;
 
     // Start is called before the first frame update
     void Start()
     {
-        
+        controller = GameController.Instance;
     }
 
     // Update is called once per frame
@@ -50,14 +50,14 @@ public class CanvasControllerScript : MonoBehaviour
                     //easy AI
                     // fake function
                     Background.SetActive(false);
-                    gameController.SetLevel(1);
+                    controller.SetGameLevel(1);
                     break;
 
                 case "HighDifficulty":
 
                     //Difficult AI
                     Background.SetActive(false);
-                    gameController.SetLevel(2);
+                    controller.SetGameLevel(4);
                     break;
 
                 case "Resume":

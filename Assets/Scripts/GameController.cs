@@ -25,7 +25,7 @@ public class GameController : MonoBehaviour
     private GameObject lastKilledChess;
     private AudioSource audioSource;
     private bool _kingDead = false;
-    private int GameLevel = 0;
+    private int GameLevel = 1;
     float timer = 0;
     public static GameController Instance;
     private void Awake()
@@ -41,6 +41,7 @@ public class GameController : MonoBehaviour
     }
     void Start()
     {
+
         AI = new AI();
         AI.setSquares();
         chessBoard = GameObject.FindGameObjectWithTag("Chess Game");
@@ -54,7 +55,7 @@ public class GameController : MonoBehaviour
 
     void Update()
     {   
-        
+        AI.SetMaxDepth(GameLevel);
         if (_kingDead)
         {
             // Debug.Log("WINNER!");
@@ -86,6 +87,7 @@ public class GameController : MonoBehaviour
         if (!IsUIActive())
         {
             board.SetMovingSpeed(movingSpeed);
+            
             if ((selectedObject = SingleClick()) != null)
             {
                 if (gameStatus == GameStatus.Pick || gameStatus == GameStatus.Move)
@@ -104,6 +106,9 @@ public class GameController : MonoBehaviour
             CheckAnimationStatus();
         } else {
             board.SetMovingSpeed(HoldingSpeed);
+  
+            Startplay();
+
         }
         // if (gameStatus == GameStatus.Switch)
         // {
@@ -129,6 +134,49 @@ public class GameController : MonoBehaviour
                 gameStatus = GameStatus.Pick;
             }
         }
+    }
+    public void Startplay()
+    {
+        if (gameSwitch == GameSwitch.Black && timer < 1)
+        {
+            timer += Time.deltaTime;
+        }
+        else if (gameSwitch == GameSwitch.Black && timer >= 1)
+        {
+            MoveData move = AI.GetRandom(gameSwitch);
+            // Debug.Log("KAishi " + move.firstPosition);
+            _DoAIMove(move);
+            timer = 0;
+        }
+        Debug.Log(gameSwitch == GameSwitch.White && timer >= 1);
+        if (gameSwitch == GameSwitch.White && timer < 1)
+        {
+            timer += Time.deltaTime;
+        }
+        else if (gameSwitch == GameSwitch.White && timer >= 1)
+        {
+            MoveData move = AI.GetRandom(gameSwitch);
+            Debug.Log("KAishi " + move.firstPosition);
+            _DoAIMove(move);
+            timer = 0;
+        }
+        void _DoAIMove(MoveData move)
+        {
+            Coordinate firstPosition = move.firstPosition;
+            Coordinate secondPosition = move.secondPosition;
+            Piece firstPiece = board.FindPiece(firstPosition);
+            Square Target = board.FindSquare(secondPosition);
+            SelectPiece(firstPiece.go);
+            SelectSquare(Target.go);
+        }
+    }
+
+    public void SetGameLevel(int level) {
+        this.GameLevel = level;
+    }
+
+    public int GetGameLevel() {
+        return this.GameLevel;
     }
 
     /*
@@ -315,11 +363,6 @@ public class GameController : MonoBehaviour
                 AudioSource.PlayClipAtPoint(moving, playPoint);
                 break;
         }
-    }
-
-    public void SetLevel(int level) {
-
-        this.GameLevel = level;
     }
 
 }

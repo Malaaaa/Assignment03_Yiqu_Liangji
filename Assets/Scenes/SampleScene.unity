@@ -1857,6 +1857,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Pause: {fileID: 906945568}
   Background: {fileID: 948921284}
+  gameController: {fileID: 0}
 --- !u!1 &328613453
 GameObject:
   m_ObjectHideFlags: 0
@@ -5993,7 +5994,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &948921285
 RectTransform:
   m_ObjectHideFlags: 0

@@ -19,19 +19,16 @@ public class AI
 
     int whiteScore = 0;
     int blackScore = 0;
-    int maxDepth = 2;
+    private int maxDepth = 2;
 
-    public int MaxDepth
-    {
-        get
-        {
-            return maxDepth;
-        }
-        set
-        {
-            maxDepth = value;
-        }
+    public void SetMaxDepth(int newValue) {
+        this.maxDepth = newValue;
     }
+
+    public int GetMaxDepth() {
+        return this.maxDepth;
+    }
+
     Board board = Board.Instance;
     GameController GameController;
     public void setSquares()
@@ -48,12 +45,18 @@ public class AI
     {
         board = Board.Instance;
         GameController = GameController.Instance;
-        bestMove = CreateMove(new Coordinate(0, 0), new Coordinate(0, 0));
+        bestMove = GetRandom(player);
         CalculateMinMax(maxDepth, int.MinValue, int.MaxValue, true);
         Debug.Log(maxDepth);
         return bestMove;
     }
-
+    public MoveData GetRandom(GameSwitch player)
+    {
+        GetBoardState();
+        List<MoveData> allMoves = GetMoves(player);
+        int i = Random.Range(0,allMoves.Count);
+        return allMoves[i];
+    }
     int CalculateMinMax(int depth, int alpha, int beta, bool max)
     {
         GetBoardState();

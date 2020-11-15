@@ -11,6 +11,8 @@ public class GameController : MonoBehaviour
     public AudioClip hurt;
     private readonly float rotateFactory = 100f;
     private readonly float dragFactory = 0.5f;
+    private float HoldingSpeed = 100f;
+    private float movingSpeed = 1f;
     private int frame = 0;
     private GameStatus gameStatus;
     public GameSwitch gameSwitch;
@@ -51,7 +53,8 @@ public class GameController : MonoBehaviour
     }
 
     void Update()
-    {
+    {   
+        
         if (_kingDead)
         {
             // Debug.Log("WINNER!");
@@ -82,6 +85,7 @@ public class GameController : MonoBehaviour
         
         if (!IsUIActive())
         {
+            board.SetMovingSpeed(movingSpeed);
             if ((selectedObject = SingleClick()) != null)
             {
                 if (gameStatus == GameStatus.Pick || gameStatus == GameStatus.Move)
@@ -98,6 +102,8 @@ public class GameController : MonoBehaviour
                 SwitchGamer();
             }
             CheckAnimationStatus();
+        } else {
+            board.SetMovingSpeed(HoldingSpeed);
         }
         // if (gameStatus == GameStatus.Switch)
         // {
@@ -131,13 +137,17 @@ public class GameController : MonoBehaviour
      */
     private void CheckAnimationStatus()
     {
-
+        float speed = movingSpeed;
+        if (IsUIActive()) {
+            speed = HoldingSpeed;
+        }
         if (latestSelectedChess != null && lastSelectSquare != null)
         {
 
             if (CheckSamePosition(latestSelectedChess.transform.position, lastSelectSquare.transform.position))
             {
                 Animator chessAnimator = latestSelectedChess.GetComponent<Animator>();
+                chessAnimator.speed = speed;
                 chessAnimator.SetBool("Attacking", false);
                 chessAnimator.SetBool("Walking", false);
                 chessAnimator.Play("Idle");
@@ -149,6 +159,8 @@ public class GameController : MonoBehaviour
             float distance = Distance2TargetChess(latestSelectedChess, lastSelectSquare);
             Animator moveChessAnimator = latestSelectedChess.GetComponent<Animator>();
             Animator killedChessAnimator = lastKilledChess.GetComponent<Animator>();
+            moveChessAnimator.speed = speed;
+            killedChessAnimator.speed = speed;
             if (distance <= 1.5f && distance > 0.5f)
             {
                 Debug.Log("Attack set true");
@@ -281,7 +293,9 @@ public class GameController : MonoBehaviour
         // {
         //     audioSource.Stop();
         // }
-
+        if (IsUIActive()) {
+            return ;
+        }
         switch (audioType)
         {
             case "Attack":

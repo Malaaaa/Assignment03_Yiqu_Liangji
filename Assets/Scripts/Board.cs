@@ -5,7 +5,8 @@ using UnityEngine.AI;
 public class Board 
 {
     private int stepCount = 0;                                   
-    private int stepSize = 0;                        
+    private int stepSize = 0;
+    private float movingSpeed;
 
     private Animator animator = null;      
     private List<string> stepList = new List<string>();            
@@ -68,9 +69,14 @@ public class Board
         {
             NavMeshAgent nev =piece.go.AddComponent<NavMeshAgent>();
             nev.baseOffset= 0;
-            nev.speed = 1f;
+            nev.speed = movingSpeed;
         }
     }
+
+    public void SetMovingSpeed(float speed) {
+        this.movingSpeed = speed;
+    }
+
     // choose chess
     public GameObject PickPiece(Coordinate coord)
     {

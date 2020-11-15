@@ -17,7 +17,9 @@ public class CanvasControllerScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+
         controller = GameController.Instance;
+
     }
 
     // Update is called once per frame

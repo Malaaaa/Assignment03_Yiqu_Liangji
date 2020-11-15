@@ -158,8 +158,8 @@ public class AI
 
         // Debug.Log("Select" + fromTil);
         // Debug.Log("Target" + targetTil);
-        Piece target = _board.FindPiece(targetTil);
-        Piece from = _board.FindPiece(fromTil);
+        Piece target = board.FindPiece(targetTil);
+        Piece from = board.FindPiece(fromTil);
 
         if (target != null)
         {

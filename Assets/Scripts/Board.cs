@@ -6,7 +6,7 @@ public class Board
 {
     private int stepCount = 0;                                   
     private int stepSize = 0;
-    private float movingSpeed;
+    private float movingSpeed = 1f;
 
     private Animator animator = null;      
     private List<string> stepList = new List<string>();            
